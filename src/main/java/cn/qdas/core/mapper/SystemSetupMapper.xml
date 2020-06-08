@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qdas.core.dao.SystemSetupMapper">
+	<select id="getProdectLineByFactory" parameterType="cn.qdas.core.bean.SystemSetupBean" resultType="map">
+		SELECT productLine_name,workShop_name,factory_name,productLine_topPosition,productLine_leftPosition,point_topPosition,point_leftPosition
+		FROM productLine WHERE workShop_name=#{workShopName} and factory_name=#{factoryName}
+	</select>
+	<insert id="addNewProductLine" parameterType="cn.qdas.core.bean.SystemSetupBean">
+		INSERT INTO productLine(productLine_name,workShop_name,factory_name,productLine_topPosition,productLine_leftPosition,point_topPosition,point_leftPosition)
+		values(#{productLineName},#{workShopName},#{factoryName},#{plTopPosition},#{plLeftPosition},#{pointTopPosition},#{pointLeftPosition})
+	</insert>
+	<delete id="delProductLine" parameterType="cn.qdas.core.bean.SystemSetupBean">
+		delete from productLine where productLine_name=#{productLineName}  and factory_name=#{factoryName} and workShop_name=#{workShopName}
+	</delete>
+	
+	<insert id="addNewFactory" parameterType="java.lang.String">
+		INSERT INTO factory(factory_name,factory_icon)
+		values(#{factoryName},#{factoryDrawing})
+	</insert>
+	<insert id="addWorkShop" parameterType="java.lang.String">
+		INSERT INTO workShop(workShop_name,factory_name,workShop_drawing)
+		values(#{workShopName},#{factoryName},#{workShopDrawingStr})
+	</insert>
+	<select id="getFactoryData" resultType="map">
+		select factory_name,factory_icon from factory
+	</select>
+	<delete id="delFactory" parameterType="cn.qdas.core.bean.SystemSetupBean">
+		delete from factory where factory_name=#{factoryName}
+	</delete>
+	<delete id="delFactoryProductLine" parameterType="cn.qdas.core.bean.SystemSetupBean">
+		delete from productLine where factory_name=#{factoryName}
+	</delete>
+	<select id="getProductLineCombobox" resultType="map">
+		SELECT DISTINCT TEKOSTST FROM TEIL
+	</select>
+	<select id="getWorkShop" resultType="map">
+		SELECT workShop_name,factory_name,workShop_drawing from workShop
+	</select>
+	<delete id="delProductLineByWorkShop" parameterType="cn.qdas.core.bean.SystemSetupBean">
+		delete from productLine where workShop_name=#{workShopName}
+	</delete>
+	<delete id="delWorkShop" parameterType="cn.qdas.core.bean.SystemSetupBean">
+		delete from workShop where workShop_name=#{workShopName} and factory_name=#{factoryName}
+	</delete>
+	<select id="selectWorkShopByFactory" parameterType="cn.qdas.core.bean.SystemSetupBean" resultType="map"> 
+		SELECT count(*) AS workShopCount FROM workShop WHERE factory_name=#{factoryName}
+	
+	</select>
+	<select id="getFactoryAndWorkShop" resultType="map">
+		select f.factory_name,f.factory_icon,
+		w.workShop_name,w.workShop_drawing
+		from factory f
+		LEFT JOIN workShop w on f.factory_name=w.factory_name
+		ORDER BY f.factory_name
+	</select>
+	<select id="getAllCheckTypeMapper" resultType="map">
+		SELECT BEZ ,KATKEY FROM KAT_4290
+	</select>
+</mapper>

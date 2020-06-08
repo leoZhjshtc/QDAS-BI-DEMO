@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qdas.getrag.dao.MissionManageGetragMapper">
+    <sql id="wvTimeSearch">
+        <if test="startTime !='' and startTime!=null and startTime !='undefined' and startTime !='null'">
+            and w.WVDATZEIT &gt; #{startTime}
+        </if>
+        <if test="endTime !='' and endTime!=null and endTime !='undefined' and endTime !='null'">
+            and w.WVDATZEIT &lt; #{endTime}
+        </if>
+    </sql>
+    <select id="getMissionManageChartDataMapper" parameterType="cn.qdas.getrag.bean.MissionManageGetragBean" resultMap="chartResultMap">
+        SELECT t.TETEIL,t.TETEILNR,t.TEBEZEICH,t.TEKURZBEZEICH,t.TEPREINRBEZ,TEAUFTRAGSTR,TEMASCHINENR,TEABT,TEWERK,
+        w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW,w.WVWERTNR,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT
+        FROM WERTEVAR w
+        LEFT JOIN TEIL t ON t.TETEIL= w.WVTEIL
+        LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL= w.WVTEIL
+        WHERE 1=1
+        <include refid="wvTimeSearch"></include>
+        <if test="teilNum !='' and teilNum!=null and teilNum !='undefined' and teilNum !='null'">
+            and t.TETEILNR LIKE '%'+#{teilNum}+'%'
+        </if>
+        <if test="teilName !='' and teilName!=null and teilName !='undefined' and teilName !='null'">
+            and t.TEBEZEICH LIKE '%'+#{teilName}+'%'
+        </if>
+        <if test="teilK1003 !='' and teilK1003!=null and teilK1003 !='undefined' and teilK1003 !='null'">
+            and t.TEKURZBEZEICH LIKE '%'+#{teilK1003}+'%'
+        </if>
+        ORDER BY w.WVDATZEIT
+    </select>
+    <resultMap id="chartResultMap" type="java.util.Map">
+        <result property="TETEILNR" column="TETEILNR"></result>
+        <result property="TEBEZEICH" column="TEBEZEICH"></result>
+        <result property="TEKURZBEZEICH" column="TEKURZBEZEICH"></result>
+        <collection property="wvnrList" javaType="java.util.List" ofType="java.util.Map">
+            <result property="TETEIL" column="TETEIL"></result>
+            <result property="TEPREINRBEZ" column="TEPREINRBEZ"></result>
+            <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"></result>
+            <result property="TEMASCHINENR" column="TEMASCHINENR"></result>
+            <result property="TEABT" column="TEABT"></result>
+            <result property="TEWERK" column="TEWERK"></result>
+            <result property="WVWERTNR" column="WVWERTNR"></result>
+            <collection property="wvList" javaType="java.util.List" ofType="java.util.Map">
+                <result property="WVWERT" column="WVWERT"></result>
+                <result property="MEMERKART" column="MEMERKART"></result>
+                <result property="MEUGW" column="MEUGW"></result>
+                <result property="MEOGW" column="MEOGW"></result>
+                <result property="WVDATZEIT" column="WVDATZEIT"></result>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="getMissionManageTeilInfoMapper" parameterType="cn.qdas.getrag.bean.MissionManageGetragBean" resultType="map">
+        SELECT TETEIL,TETEILNR,TEBEZEICH,TEKURZBEZEICH,TEWERK,TEABT,TEMASCHINENR,TEAUFTRAGSTR,TEPREINRBEZ FROM TEIL WHERE TETEIL= #{teilId}
+    </select>
+    <select id="missionManageDetailsMerkmalMapper" parameterType="cn.qdas.getrag.bean.MissionManageGetragBean" resultType="map">
+        SELECT m.MEMERKMAL,m.MEMERKBEZ,m.MENENNMAS,m.MEMERKART,m.MEUGW,m.MEOGW,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) as WVDATZEIT,p.PRVORNAME,t.TETEIL,t.TETEILNR
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON m.METEIL=w.WVTEIL AND m.MEMERKMAL=w.WVMERKMAL
+		LEFT JOIN TEIL t ON t.TETEIL=m.METEIL
+		LEFT JOIN PRUEFER p ON w.WVPRUEFER=p.PRPRUEFER
+		WHERE t.TETEIL=#{teilId}
+		AND w.WVWERTNR=#{wvwertnr}
+    </select>
+</mapper>

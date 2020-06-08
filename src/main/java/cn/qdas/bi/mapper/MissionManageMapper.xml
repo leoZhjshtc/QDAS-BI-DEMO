@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qdas.bi.dao.MissionManageMapper">
+	<select id="getProductionPlanChartData" parameterType="cn.qdas.bi.bean.MissionManageBean" resultMap="chartTeilWv">
+		SELECT t.TETEIL,t.TEPREINRNR,<!-- t.TEPRGRUNDBEZ, -->k.BEZ AS WV0063,w.WV0063 AS WV0063Id,t.TETEILNR,t.TEKOSTST,CONCAT (t.TEAUFTRAGSTR,' / ',t.TEAUFTRAGGBBEZ) AS TEAUFTRAGGBBEZ,w.WVWERTNR,
+		<!-- CONVERT(varchar(100),MIN(w.WVDATZEIT), 20) AS startTime,CONVERT(varchar(100),MAX(w.WVDATZEIT), 20) AS endTime, -->
+		CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT,
+		t.TE_1341,t.TEKURZBEZEICH,p.PRVORNAME,w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW
+		FROM TEIL t
+		LEFT JOIN WERTEVAR w ON w.WVTEIL = t.TETEIL
+		LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+		LEFT JOIN PRUEFER p ON w.WVPRUEFER=p.PRPRUEFER
+		LEFT JOIN KAT_4290 k ON k.KATKEY=w.WV0063
+		WHERE t.TEKOSTST IN 
+			<foreach collection="productLines" open="(" close=")" separator="," item="item" index="i">
+						#{item}
+			</foreach>
+			<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and w.WVDATZEIT &gt; #{startTime}
+			</if>
+			<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+				and w.WVDATZEIT &lt; #{endTime}
+			</if>
+			<if test="productClass !='' and productClass !=null and productClass !='undefined'">
+				and t.TEKURZBEZEICH = #{productClass}
+			</if>
+			<if test="checkType !='' and checkType !=null and checkType !='undefined'">
+				and k.KATKEY = #{checkType}
+			</if>
+			<if test="checkPlanNum !='' and checkPlanNum !=null and checkPlanNum !='undefined'">
+				and t.TE_1341 = #{checkPlanNum}
+			</if>
+			<if test="teilNum !='' and teilNum !=null and teilNum !='undefined'">
+				and t.TETEILNR = #{teilNum}
+			</if>
+			<if test="teilName !='' and teilName !=null and teilName !='undefined'">
+				and t.TEBEZEICH = #{teilName}
+			</if>
+			<if test="checkMan !='' and checkMan !=null and checkMan !='undefined'">
+				and p.PRVORNAME = #{checkMan}
+			</if>
+			<if test="procedure !='' and procedure !=null and procedure !='undefined'">
+				and t.TEAUFTRAGGBBEZ = #{procedure}
+			</if>
+		<!-- GROUP BY t.TETEIL,t.TEPREINRNR,t.TEKOSTST,w.WVWERTNR,t.TETEILNR,,t.TEPRGRUNDBEZk.BEZ,t.TE_1341,t.TEKURZBEZEICH,t.TEAUFTRAGGBBEZ,t.TEAUFTRAGSTR,p.PRVORNAME,w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW,w.WV0063 -->
+		ORDER BY <!-- t.TEKOSTST,t.TEPREINRNR -->t.TETEIL,w.WVWERTNR,w.WVDATZEIT
+	</select>
+	<resultMap type="cn.qdas.bi.bean.MmChartTeilBean" id="chartTeil">
+		<result property="WVWERTNR" column="WVWERTNR"/>
+		<result property="TETEIL" column="TETEIL"/>
+		<result property="TEPREINRNR" column="TEPREINRNR"/>
+		<!-- <result property="TEPRGRUNDBEZ" column="TEPRGRUNDBEZ"/> -->
+		<result property="TETEILNR" column="TETEILNR"/>
+		<result property="WV0063" column="WV0063"/>
+		<result property="WV0063Id" column="WV0063Id"/>
+		<result property="TEKOSTST" column="TEKOSTST"/>
+		<result property="TEAUFTRAGGBBEZ" column="TEAUFTRAGGBBEZ"/>
+		<result property="TE_1341" column="TE_1341"/>
+		<result property="TEKURZBEZEICH" column="TEKURZBEZEICH"/>
+		<result property="PRVORNAME" column="PRVORNAME"/>
+	</resultMap>
+	<resultMap type="cn.qdas.bi.bean.MmChartWvBean" id="chartWv">
+		<result property="WVWERT" column="WVWERT"/>
+		<result property="MEMERKART" column="MEMERKART"/>
+		<result property="MEUGW" column="MEUGW"/>
+		<result property="MEOGW" column="MEOGW"/>
+		<result property="MENORMISTUN" column="MENORMISTUN"/>
+		<result property="MENORMISTOB" column="MENORMISTOB"/>
+		<!-- <result property="startTime" column="startTime"/>
+		<result property="endTime" column="endTime"/> -->
+		<result property="WVDATZEIT" column="WVDATZEIT"/>
+	</resultMap>
+	<resultMap type="cn.qdas.bi.bean.MmChartTeilBean" id="chartTeilWv" extends="chartTeil">
+		<collection property="wvList" resultMap="chartWv"></collection>
+	</resultMap>
+	<select id="getProductionPlanChartDataByK1002" parameterType="java.lang.String" resultType="map">
+		select w.WVCHARGE,t.TEBEZEICH,min(WVDATZEIT) AS startTime,max(WVDATZEIT) as endTime,
+		(SELECT COUNT(*) FROM ALARM_VALUES WHERE ALARM_EW=0 AND K0006=w.WVCHARGE AND K1000=t.TETEIL)AS alarmCount0,
+		(SELECT COUNT(*) FROM ALARM_VALUES WHERE ALARM_EW=1 AND K0006=w.WVCHARGE AND K1000=t.TETEIL)AS alarmCount1,
+		(SELECT COUNT(*) FROM ALARM_VALUES WHERE ALARM_EW=2 AND K0006=w.WVCHARGE AND K1000=t.TETEIL)AS alarmCount2,
+		(SELECT COUNT(*) FROM ALARM_VALUES WHERE ALARM_EW=16 AND K0006=w.WVCHARGE AND K1000=t.TETEIL)AS alarmCount16,
+		(SELECT COUNT(*) FROM ALARM_VALUES WHERE ALARM_EW=32 AND K0006=w.WVCHARGE AND K1000=t.TETEIL)AS alarmCount32,
+		(SELECT COUNT(*) FROM ALARM_VALUES WHERE ALARM_EW=65066 AND K0006=w.WVCHARGE AND K1000=t.TETEIL)AS alarmCount65536
+		from WERTEVAR w 
+		LEFT JOIN TEIL t ON w.WVTEIL=t.TETEIL
+		WHERE w.WVCHARGE !=''
+		group by w.WVCHARGE,t.TEBEZEICH,t.TETEIL
+		ORDER BY t.TEBEZEICH,startTime
+	</select>
+	
+	<select id="getProductLineByFw" resultType="map">
+		<!-- SELECT TEKOSTST  AS productLine_name FROM TEIL WHERE TEKOSTST IS NOT NULL GROUP BY TEKOSTST -->
+		SELECT productLine_name FROM productLine where factory_name=#{factoryName}
+	</select>
+	<select id="getCheckMissionData" parameterType="cn.qdas.bi.bean.MissionManageBean" resultType="map">
+		SELECT DISTINCT t.TETEIL,t.TETEILNR,t.TEBEZEICH,t.TEKOSTST,k.BEZ AS WV0063<!-- ,t.TEPRGRUNDBEZ -->,t.TEKURZBEZEICH,p.PRVORNAME,w.WVWERTNR,t.TE_1341,t.TEAUFTRAGGBBEZ,
+		(SELECT CONVERT(varchar(100),MAX(WVDATZEIT), 20) AS WVDATZEIT FROM WERTEVAR WHERE  w.WVWERTNR=WVWERTNR 
+			<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+				and WVDATZEIT &gt; #{startTime}
+			</if>
+			<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+				and WVDATZEIT &lt; #{endTime}
+			</if>
+		) AS WVDATZEIT
+		FROM TEIL t
+		LEFT JOIN WERTEVAR w ON t.TETEIL=w.WVTEIL
+		LEFT JOIN PRUEFER p ON w.WVPRUEFER=p.PRPRUEFER
+		LEFT JOIN KAT_4290 k ON k.KATKEY=w.WV0063
+		where t.TEKOSTST in 
+		<foreach collection="productLines" open="(" close=")" separator="," item="item" index="i">
+					#{item}
+		</foreach>
+		<if test="startTime !='' and startTime !=null and startTime !='undefined'">
+			and WVDATZEIT &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime !=null and endTime !='undefined'">
+			and WVDATZEIT &lt; #{endTime}
+		</if>
+		<if test="productClass !='' and productClass !=null and productClass !='undefined'">
+			and t.TEKURZBEZEICH = #{productClass}
+		</if>
+		<if test="checkType !='' and checkType !=null and checkType !='undefined'">
+			and k.KATKEY = #{checkType}
+		</if>
+		<if test="checkPlanNum !='' and checkPlanNum !=null and checkPlanNum !='undefined'">
+			and t.TE_1341 = #{checkPlanNum}
+		</if>
+		<if test="teilNum !='' and teilNum !=null and teilNum !='undefined'">
+			and t.TETEILNR = #{teilNum}
+		</if>
+		<if test="teilName !='' and teilName !=null and teilName !='undefined'">
+			and t.TEBEZEICH = #{teilName}
+		</if>
+		<if test="checkMan !='' and checkMan !=null and checkMan !='undefined'">
+			and p.PRVORNAME = #{checkMan}
+		</if>
+		<if test="procedure !='' and procedure !=null and procedure !='undefined'">
+			and t.TEAUFTRAGGBBEZ = #{procedure}
+		</if>
+		<!-- ORDER BY WVDATZEIT DESC -->
+		<if test="sort !='' and sort!=null and sort !='undefined'">
+			order by ${sort} ${order}
+		</if>
+	</select>
+	<select id="getAllProductClassComboBox" resultType="map">
+		SELECT DISTINCT TEKURZBEZEICH as text,TEKURZBEZEICH as value FROM TEIL WHERE TEKURZBEZEICH IS NOT NULL
+	</select>
+	<select id="getAllCheckTypeComboBox" resultType="map">
+		<!-- SELECT DISTINCT TEPRGRUNDBEZ as text,TEPRGRUNDBEZ as value FROM TEIL WHERE TEPRGRUNDBEZ IS NOT NULL -->
+		SELECT BEZ AS text,KATKEY AS value FROM KAT_4290
+	</select>
+	<select id="getAllCheckPlanNumComboBox" resultType="map">
+		SELECT DISTINCT TE_1341 as text,TE_1341 as value FROM TEIL WHERE TE_1341 IS NOT NULL
+	</select>
+	<select id="getAllTeilNameComboBox" resultType="map">
+		SELECT DISTINCT TEBEZEICH as text,TEBEZEICH as value FROM TEIL WHERE TEBEZEICH IS NOT NULL
+	</select>
+	<select id="getAllCheckManComboBox" resultType="map">
+		SELECT DISTINCT PRVORNAME as text,PRVORNAME as value FROM PRUEFER WHERE PRVORNAME IS NOT NULL
+	</select>
+	<select id="getAllTeilNumComboBox" resultType="map">
+		SELECT DISTINCT TETEILNR as text,TETEILNR as value FROM TEIL WHERE TETEILNR IS NOT NULL
+	</select>
+	<select id="getProcedureComboBox" resultType="map">
+		SELECT TEAUFTRAGGBBEZ as text,TEAUFTRAGGBBEZ as value FROM TEIL WHERE TEAUFTRAGGBBEZ IS NOT NULL GROUP BY TEAUFTRAGGBBEZ 
+	</select>
+	<select id="getDetailsTeilTable" parameterType="cn.qdas.bi.bean.MissionManageBean" resultType="map">
+		<!-- SELECT DISTINCT CONCAT(t.TETEILNR,' / ',t.TEBEZEICH) as k1001k1002,w.WV0014,w.WVCHARGE,w.WVMASCHINE,CONVERT(varchar(100),WVDATZEIT, 20) as WVDATZEIT
+		FROM TEIL t LEFT JOIN WERTEVAR w ON t.TETEIL=w.WVTEIL
+		WHERE t.TETEILNR=#{teilNum}
+		AND w.WVWERTNR=#{wvwertnr} -->
+		SELECT TETEILNR,TEBEZEICH,TEKURZBEZEICH,TEAENDSTAND,TEAUFTRAGGBBEZ,TEAUFTRAGSTR,TEKOSTST,TEPREINRNR,TEPRGRUNDBEZ,TE_1341
+		FROM TEIL 
+		<!-- WHERE TETEIL=#{teilId}  -->
+		WHERE TETEIL =#{teilId}
+	</select>
+	<select id="getDetailsMerkmalTable" parameterType="cn.qdas.bi.bean.MissionManageBean" resultType="map">
+		<!-- SELECT CONCAT(m.MEMERKNR,' / ',m.MEMERKBEZ) as k2001k2002,m.MEEINHEITTEXT,m.MENENNMAS,m.MEUGW,m.MEOGW,w.WVWERT,m.MEMERKART
+		FROM MERKMAL m LEFT JOIN TEIL t ON t.TETEIL=m.METEIL LEFT JOIN WERTEVAR w ON t.TETEIL=w.WVTEIL AND m.MEMERKMAL=w.WVMERKMAL
+		WHERE t.TETEILNR=#{teilNum} AND w.WVWERTNR=#{wvwertnr} -->
+		
+		SELECT m.MEMERKMAL,m.MEMERKBEZ,m.MENENNMAS,m.MEMERKART,m.MEUGW,m.MEOGW,MENORMISTUN,MENORMISTOB,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) as WVDATZEIT,p.PRVORNAME,t.TETEIL,t.TETEILNR,WV0014,
+		ETTEXT = STUFF( (SELECT ',' + e.ETTEXT FROM EREIGTXT e WHERE PATINDEX('%(' + RTRIM(e.ETTEXTNR) + ')%','(' + w.WV0005 + ')') > 0
+		ORDER BY PATINDEX('%(' + RTRIM(e.ETTEXTNR) + ')%','(' + w.WV0005 + ')')FOR XML PATH ('')),1,1,'')
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON m.METEIL=w.WVTEIL AND m.MEMERKMAL=w.WVMERKMAL
+		LEFT JOIN TEIL t ON t.TETEIL=m.METEIL
+		LEFT JOIN PRUEFER p ON w.WVPRUEFER=p.PRPRUEFER
+		LEFT JOIN EREIGTXT e ON w.WV0005=e.ETTEXTNR
+		WHERE t.TETEIL=#{teilId}
+		<!-- WHERE t.TETEIL in (SELECT TETEIL FROM TEIL WHERE TETEILNR=#{teilId} AND TEKURZBEZEICH=#{tekurzbezeich}) -->
+		AND w.WVWERTNR=#{wvwertnr}
+		
+		<if test="checkMan !='' and checkMan !=null and checkMan !='null' and checkMan !='undefined'">
+			AND p.PRVORNAME = #{checkMan}
+		</if>
+		<!-- <if test="wv0063Id !='' and wv0063Id !=null and wv0063Id !='null' and wv0063Id !='undefined'">
+			AND w.WV0063 = #{wv0063Id}
+		</if> -->
+		<!-- <if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and WVDATZEIT &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+			and WVDATZEIT &lt; #{endTime}
+		</if> -->
+		
+	</select>
+</mapper>

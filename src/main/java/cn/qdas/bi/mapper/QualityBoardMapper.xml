@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qdas.bi.dao.QualityBoardMapper">
+    <sql id="wvTimeSearch">
+        <if test="startTime !='' and startTime!=null and startTime !='undefined' and startTime !='null'">
+            and w.WVDATZEIT &gt; #{startTime}
+        </if>
+        <if test="endTime !='' and endTime!=null and endTime !='undefined' and endTime !='null'">
+            and w.WVDATZEIT &lt; #{endTime}
+        </if>
+    </sql>
+    <select id="getProductLineDataMapper" parameterType="cn.qdas.bi.bean.QualityBoard" resultMap="productLineDataMap">
+        SELECT ISNULL(t.TEKOSTST, '') AS TEKOSTST,w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW
+        FROM WERTEVAR w
+        LEFT JOIN TEIL t ON t.TETEIL= w.WVTEIL
+        LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL= w.WVTEIL
+        WHERE 1=1
+        <include refid="wvTimeSearch"></include>
+    </select>
+    <resultMap id="productLineDataMap" type="java.util.Map">
+        <result property="TEKOSTST" column="TEKOSTST"/>
+        <collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
+            <result property="WVWERT" column="WVWERT"/>
+            <result property="MEMERKART" column="MEMERKART"/>
+            <result property="MEUGW" column="MEUGW"/>
+            <result property="MEOGW" column="MEOGW"/>
+        </collection>
+    </resultMap>
+    <select id="getTeilDataMapper" parameterType="cn.qdas.bi.bean.QualityBoard" resultMap="teilDataMap">
+		SELECT t.TETEIL,t.TETEILNR,t.TEBEZEICH,w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW
+		FROM WERTEVAR w
+		LEFT JOIN TEIL t ON t.TETEIL= w.WVTEIL
+		LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL= w.WVTEIL
+		WHERE 1=1
+        <if test="productLineName !='' and productLineName!=null and productLineName !='undefined' and productLineName !='null'">
+            AND t.TEKOSTST=#{productLineName}
+        </if>
+        <if test="productLineName =='' or productLineName==null or productLineName =='undefined' or productLineName =='null'">
+            AND t.TEKOSTST IS NULL
+        </if>
+		<include refid="wvTimeSearch"></include>
+	</select>
+	<resultMap id="teilDataMap" type="java.util.Map">
+		<result property="TETEIL" column="TETEIL"/>
+		<result property="TETEILNR" column="TETEILNR"/>
+		<result property="TEBEZEICH" column="TEBEZEICH"/>
+		<collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
+			<result property="WVWERT" column="WVWERT"/>
+			<result property="MEMERKART" column="MEMERKART"/>
+			<result property="MEUGW" column="MEUGW"/>
+			<result property="MEOGW" column="MEOGW"/>
+		</collection>
+	</resultMap>
+    <select id="getMerkmalDataMapper" parameterType="cn.qdas.bi.bean.QualityBoard" resultMap="merkmalDataMap">
+        SELECT w.WVTEIL,m.MEMERKMAL,m.MEMERKBEZ,w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW
+        FROM WERTEVAR w
+        LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL= w.WVTEIL
+        WHERE 1=1 AND w.WVTEIL=#{teilId}
+        <include refid="wvTimeSearch"></include>
+    </select>
+    <resultMap id="merkmalDataMap" type="java.util.Map">
+        <result property="WVTEIL" column="WVTEIL"/>
+        <result property="MEMERKMAL" column="MEMERKMAL"/>
+        <result property="MEMERKBEZ" column="MEMERKBEZ"/>
+        <collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
+            <result property="WVWERT" column="WVWERT"/>
+            <result property="MEMERKART" column="MEMERKART"/>
+            <result property="MEUGW" column="MEUGW"/>
+            <result property="MEOGW" column="MEOGW"/>
+        </collection>
+    </resultMap>
+
+    <select id="getChartDataMapper" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+        select w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT,m.MEUGW,m.MEOGW,m.MENENNMAS,m.MEMERKART,m.MEMERKBEZ,p.PRVORNAME
+        FROM WERTEVAR w
+        LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+        LEFT JOIN PRUEFER p ON CONCAT(w.WVPRUEFER,'')=p.PRPRUEFER
+        where WVMERKMAL=#{merkmalId} and WVTEIL=#{teilId}
+        <include refid="wvTimeSearch"></include>
+        ORDER BY w.WVDATZEIT
+    </select>
+    <select id="getQbShowFormInfoMapper" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+        SELECT t.TEKOSTST,m.METEIL,m.MEMERKMAL,m.MEMERKBEZ,m.MENENNMAS,m.MEUGW,m.MEOGW,m.MEMERKART,t.TEBEZEICH,t.TETEILNR
+        FROM MERKMAL m
+        LEFT JOIN TEIL t ON t.TETEIL = m.METEIL
+        LEFT JOIN WERTEVAR w ON w.WVTEIL=m.METEIL AND w.WVMERKMAL = m.MEMERKMAL
+        WHERE 1=1
+        <include refid="wvTimeSearch"></include>
+        <if test="teilId !='' and teilId!=null and teilId !='undefined' and teilId !='null'">
+            and m.METEIL = #{teilId}
+        </if>
+        GROUP BY t.TEKOSTST,m.METEIL,m.MEMERKMAL,m.MEMERKBEZ,m.MENENNMAS,m.MEUGW,m.MEOGW,m.MEMERKART,t.TEBEZEICH,t.TETEILNR
+        ORDER BY t.TEKOSTST
+    </select>
+</mapper>

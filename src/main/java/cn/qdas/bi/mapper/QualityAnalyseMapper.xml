@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qdas.bi.dao.QualityAnalyseMapper">
+	<sql id="alarmTimeSearch">
+		<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and ALARM_DATETIME &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+			and ALARM_DATETIME &lt; #{endTime}
+		</if>
+	</sql>
+	<sql id="wvTimeSearch">
+		<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and WVDATZEIT &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+			and WVDATZEIT &lt; #{endTime}
+		</if>
+	</sql>
+	<select id="getTeilTableData" resultType="map">
+		SELECT
+		DISTINCT t.TETEIL,t.TETEILNR,t.TEBEZEICH,t.TEKOSTST,
+		(SELECT COUNT(*) FROM WERTEVAR WHERE WVTEIL = t.TETEIL <include refid="wvTimeSearch"/>) AS wvCount, 
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=0 AND t.TETEIL = K1000 <include refid="alarmTimeSearch"/>) AS alarmCount0,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=1 AND t.TETEIL = K1000 <include refid="alarmTimeSearch"/>) AS alarmCount1,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=2 AND t.TETEIL = K1000 <include refid="alarmTimeSearch"/>) AS alarmCount2,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=16 AND t.TETEIL = K1000 <include refid="alarmTimeSearch"/>) AS alarmCount16,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=32 AND t.TETEIL = K1000 <include refid="alarmTimeSearch"/>) AS alarmCount32,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=65536 AND t.TETEIL = K1000 <include refid="alarmTimeSearch"/>) AS alarmCount65536
+		FROM TEIL t
+		LEFT JOIN ALARM_VALUES a ON t.TETEIL = a.K1000
+		WHERE 1 = 1 
+		<if test="teilNum !='' and teilNum !=null">
+			and TETEILNR like concat ('%',#{teilNum},'%')
+		</if>
+		<if test="teilName !='' and teilName !=null">
+			and TEBEZEICH like concat ('%',#{teilName},'%')
+		</if>
+		<if test="productLineName !='' and productLineName !=null">
+			and TEKOSTST like concat ('%',#{productLineName},'%')
+		</if>
+		ORDER BY t.TETEIL
+	</select>
+	<select id="getMerkmalDataByTeilId" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+		SELECT DISTINCT m.MEMERKMAL,M.METEIL,m.MEMERKBEZ,MEMERKNR,m.MEUGW,m.MEOGW,
+		(SELECT COUNT(*) FROM WERTEVAR WHERE WVTEIL =m.METEIL AND WVMERKMAL=m.MEMERKMAL <include refid="wvTimeSearch"/>) AS wvCount,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=0 AND m.METEIL = K1000 AND m.MEMERKMAL=K2000 <include refid="alarmTimeSearch"/>) AS alarmCount0,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=1 AND m.METEIL = K1000 AND m.MEMERKMAL=K2000 <include refid="alarmTimeSearch"/>) AS alarmCount1,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=2 AND m.METEIL = K1000 AND m.MEMERKMAL=K2000 <include refid="alarmTimeSearch"/>) AS alarmCount2,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=16 AND m.METEIL = K1000 AND m.MEMERKMAL=K2000 <include refid="alarmTimeSearch"/>) AS alarmCount16,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=32 AND m.METEIL = K1000 AND m.MEMERKMAL=K2000 <include refid="alarmTimeSearch"/>) AS alarmCount32,
+		(SELECT COUNT(ALARM_EW) FROM ALARM_VALUES WHERE ALARM_EW=65536 AND m.METEIL = K1000 AND m.MEMERKMAL=K2000 <include refid="alarmTimeSearch"/>) AS alarmCount65536
+		FROM MERKMAL m
+		WHERE m.METEIL =#{teilId}
+		<if test="merkmalName !='' and merkmalName !=null">
+			and MEMERKBEZ like concat ('%',#{merkmalName},'%')
+		</if>
+		<if test="merkmalNum !='' and merkmalNum !=null">
+			and MEMERKNR like concat ('%',#{merkmalNum},'%')
+		</if>
+		ORDER BY m.MEMERKMAL
+	</select>
+	<select id="getMerkmalByTeilId" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+		SELECT METEIL,MEMERKMAL,MEMERKBEZ,MEMERKART FROM MERKMAL WHERE METEIL IN 
+		(SELECT TETEIL FROM TEIL WHERE 1=1 
+		<if test="teilNum !='' and teilNum !=null and teilNum !='undefined'">
+			and TETEILNR = #{teilNum}
+		</if>
+		<if test="productLineName !='' and productLineName !=null and productLineName !='undefined'">
+			and TEKOSTST = #{productLineName}
+		</if>
+		<if test="machineName !='' and machineName !=null and machineName !='undefined'">
+			and TEPREINRNR = #{machineName}
+		</if>
+		<if test="processNum !='' and processNum !=null and processNum !='undefined'">
+			and TEAUFTRAGSTR = #{processNum}
+		</if>)
+		
+		
+		
+	</select>
+	<select id="getChartDataByMerkmalIds" parameterType="java.lang.String" resultType="map">
+		select w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,w.WVDATZEIT,
+		m.MEMERKBEZ
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL=w.WVTEIL
+		where WVMERKMAL in 
+		<foreach collection="merkmalIds" open="(" close=")" separator="," item="item" index="i">
+					#{item}
+		</foreach>
+ 		and WVTEIL IN (SELECT TETEIL FROM TEIL WHERE 1=1 
+ 			<if test="teilNum !='' and teilNum !=null and teilNum !='undefined'">
+				and TETEILNR = #{teilNum}
+			</if>
+ 		)
+		ORDER BY w.WVDATZEIT
+	</select>
+	<resultMap type="java.util.Map" id="chartDataByTeilAndMerkmalMap">
+		<result property="WVTEIL" column="WVTEIL"/>
+		<result property="WVMERKMAL" column="WVMERKMAL"/>
+		<result property="MEMERKBEZ" column="MEMERKBEZ"/>
+			<collection property="WVLIST" ofType="java.util.Map" javaType="java.util.List">
+				<result property="WVWERTNR" column="WVWERTNR"/>
+				<result property="WVWERT" column="WVWERT"/>
+				<result property="WVDATZEIT" column="WVDATZEIT"/>
+			</collection>
+	</resultMap>
+	<select id="getChartDataByTeilAndMerkmal" parameterType="java.lang.String" resultMap="chartDataByTeilAndMerkmalMap">
+		select TOP 125 w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,w.WVDATZEIT,
+		m.MEMERKBEZ
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL=w.WVTEIL
+		where  WVTEIL = #{teilId}
+		AND WVMERKMAL = #{merkmalId} 
+		<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and w.WVDATZEIT &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+			and w.WVDATZEIT &lt; #{endTime}
+		</if>
+		ORDER BY w.WVWERTNR DESC
+	</select>
+	<select id="getLocalMaxTeil" resultType="map">
+		SELECT IFNULL(MAX(TETEIL),0) AS MAXTEIL FROM TEIL
+	</select>
+	<select id="getQdasMaxTeil" resultType="map">
+		SELECT ISNULL(MAX(TETEIL),0) AS MAXTEIL FROM TEIL
+	</select>
+	<select id="getAllTeil" parameterType="java.lang.String" resultMap="teilMerkmalMap">
+		SELECT t.TETEIL,t.TETEILNR,t.TEBEZEICH,t.TEPREINRNR,t.TEKOSTST,t.TEAUFTRAGGBBEZ,t.TEAUFTRAGSTR,m.MEKLASSNR,
+		m.METEIL,m.MEMERKMAL,m.MEEINHEITTEXT,m.MEMERKBEZ,m.MENENNMAS,m.MEUGW,m.MEOGW,m.MEMERKART,m.MENORMISTUN,m.MENORMISTOB
+		FROM TEIL t
+		LEFT JOIN MERKMAL m ON t.TETEIL=m.METEIL
+		WHERE MEMERKNR IS NOT NULL
+		<!-- WHERE t.TETEIL &gt; #{maxLocalTeil} -->
+	</select>
+	<delete id="deleteAllTeilData">
+		DELETE FROM TEIL
+	</delete>
+	<delete id="deleteAllMerkmalData">
+		DELETE FROM MERKMAL
+	</delete>
+	<insert id="synchronizedLocalTeil" parameterType="java.util.List">
+		insert into TEIL(TETEIL,TETEILNR,TEBEZEICH,TEPREINRNR,TEKOSTST,TEAUFTRAGGBBEZ,TEAUFTRAGSTR,DLCOUNT,MERKMALCOUNT) values 
+		<foreach collection ="list" item= "teil" separator="," >
+				(#{teil.teteil},#{teil.teteilnr},#{teil.tebezeich},#{teil.tepreinrnr},#{teil.tekostst},#{teil.teauftraggbbez},#{teil.teauftragstr},#{teil.dlCount},#{teil.merkmalCount})
+		</foreach>
+	</insert>
+	<insert id="synchronizedLocalMerkmal" parameterType="java.util.List">
+		insert into MERKMAL(METEIL,MEMERKMAL,MEMERKBEZ,MENENNMAS,MEUGW,MEOGW,MEEINHEITTEXT,MEMERKART,MENORMISTUN,MENORMISTOB,CMK) values 
+		<foreach collection ="list" item= "merkmal" separator="," >
+				(#{merkmal.meteil},#{merkmal.memerkmal},#{merkmal.memerkbez},#{merkmal.menennmas},#{merkmal.meugw},#{merkmal.meogw},#{merkmal.meeinheittext},#{merkmal.memerkart},#{merkmal.menormistun},#{merkmal.menormistob},#{merkmal.cmk})
+		</foreach>
+	</insert>
+	<resultMap type="cn.qdas.bi.bean.QaTeilBean" id="teilMap">
+		<result property="teteil" column="TETEIL"/>
+		<result property="teteilnr" column="TETEILNR"/>
+		<result property="tebezeich" column="TEBEZEICH"/>
+		<result property="tepreinrnr" column="TEPREINRNR"/>
+		<result property="tekostst" column="TEKOSTST"/>
+		<result property="teauftraggbbez" column="TEAUFTRAGGBBEZ"/>
+		<result property="teauftragstr" column="TEAUFTRAGSTR"/>
+	</resultMap>
+	<resultMap type="cn.qdas.bi.bean.QaMerkmalBean" id="merkmalMap">
+		<result property="meteil" column="METEIL"/>
+		<result property="memerkmal" column="MEMERKMAL"/>
+		<result property="memerkbez" column="MEMERKBEZ"/>
+		<result property="menennmas" column="MENENNMAS"/>
+		<result property="meugw" column="MEUGW"/>
+		<result property="meogw" column="MEOGW"/>
+		<result property="meeinheittext" column="MEEINHEITTEXT"/>
+		<result property="memerkart" column="MEMERKART"/>
+		<result property="menormistun" column="MENORMISTUN"/>
+		<result property="menormistob" column="MENORMISTOB"/>
+		<result property="cmk" column="MEKLASSNR"/>
+	</resultMap>
+	<resultMap type="cn.qdas.bi.bean.QaTeilBean" id="teilMerkmalMap" extends="teilMap">
+		<collection property="merkmalList" resultMap="merkmalMap"></collection>
+	</resultMap>
+	
+	<resultMap type="java.util.Map" id="productLineDataMap">
+		<id property="TEKOSTST" column="TEKOSTST"/>
+		<collection property="COUNTLIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="TETEIL" column="TETEIL"/>
+			<result property="DLCOUNT" column="DLCOUNT"/>
+			<result property="MERKMALCOUNT" column="MERKMALCOUNT"/>
+			<collection property="WVCOUNTLIST" ofType="java.util.Map" javaType="java.util.List">
+				<result property="MEMERKMAL" column="MEMERKMAL"/>
+				<result property="ALARMCOUNT" column="ALARMCOUNT"/>
+				<result property="NOKCOUNT" column="NOKCOUNT"/>
+				<result property="TOTALCOUNT" column="TOTALCOUNT"/>
+				<result property="CPKALARM" column="CPKALARM"/>
+				<result property="MEMERKART" column="MEMERKART"/>
+			</collection>
+		</collection>
+	</resultMap>
+	<select id="getProductLineData" resultMap="productLineDataMap">
+		<!-- SELECT TEKOSTST,TETEIL,DLCOUNT,MERKMALCOUNT FROM TEIL WHERE TEKOSTST IS NOT NULL ORDER BY TEKOSTST -->
+		SELECT t.TEKOSTST,t.TETEIL,t.DLCOUNT,t.MERKMALCOUNT,m.MEMERKMAL,m.ALARMCOUNT,m.NOKCOUNT,m.TOTALCOUNT,m.CPKALARM,m.MEMERKART
+		FROM TEIL t
+		LEFT JOIN MERKMAL m ON t.TETEIL=m.METEIL
+		WHERE t.TEKOSTST IN
+		<foreach collection="productLines" open="(" close=")" separator="," item="item" index="i">
+					#{item}
+		</foreach> 
+		ORDER BY t.TEKOSTST
+	</select>
+	
+	<select id="getAllMerkmalList" resultType="Map">
+		SELECT METEIL,MEMERKMAL,MEUGW,MEOGW,MEMERKART,CMK,MENORMISTUN,MENORMISTOB FROM MERKMAL
+	</select>
+	<select id="getWertevarByTeilAndMerkmal" parameterType="java.lang.String" resultType="Map">
+		SELECT TOP 125 WVWERT,WVWERTNR FROM WERTEVAR WHERE WVTEIL=#{teilId} AND WVMERKMAL=#{merkmalId}
+		ORDER BY WVWERTNR DESC
+	</select>
+	<select id="getMonthReportData" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+		SELECT WVWERT FROM WERTEVAR WHERE WVTEIL=#{teilId} AND WVMERKMAL=#{merkmalId}
+		<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and WVDATZEIT &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+			and WVDATZEIT &lt; #{endTime}
+		</if>
+	</select>
+	<insert id="insertMonthReport" parameterType="java.util.List">
+		insert into MONTHREPORT(MTEIL,MMERKMAL,MEMERKART,MONTH,PASSRATE,CPK,CPKALARM) values 
+		<foreach collection ="list" item= "wv" separator="," >
+				(#{wv.MTEIL},#{wv.MMERKMAL},#{wv.MEMERKART},#{wv.MONTH},#{wv.PASSRATE},#{wv.CPK},#{wv.CPKALARM})
+		</foreach>
+	</insert>
+	<delete id="deleteAllCountData">
+		DELETE FROM COUNTDATA
+	</delete>
+	<update id="updateMerkalCountData" parameterType="java.lang.String">
+		UPDATE MERKMAL SET ALARMCOUNT=#{alarmCount},NOKCOUNT=#{nokCount},TOTALCOUNT=#{totalCount},CPK=#{cpk},CPKALARM=#{cpkAlarm},LOWCL=#{lowCl},UPCL=#{upCl} WHERE METEIL=#{teilId} AND MEMERKMAL=#{merkmalId}
+	</update>
+	<update id="batchUpdateMerkalCountData" parameterType="java.util.List">
+		<foreach collection="list" item="item" separator=";">
+	        update MERKMAL SET
+	            ALARMCOUNT=${item.ALARMCOUNT},
+	            NOKCOUNT=${item.NOKCOUNT},
+	            TOTALCOUNT=${item.TOTALCOUNT}
+	        WHERE METEIL = ${item.METEIL} AND MEMERKMAL=#{item.MEMERKMAL}
+    	</foreach>      
+	</update>
+	
+	<resultMap type="java.util.Map" id="machineDataMap">
+		<result property="TEPREINRNR" column="TEPREINRNR"/>
+		<result property="TEAUFTRAGGBBEZ" column="TEAUFTRAGGBBEZ"/>
+		<result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
+		<collection property="COUNTLIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="TETEIL" column="TETEIL"/>
+			<result property="DLCOUNT" column="DLCOUNT"/>
+			<result property="MERKMALCOUNT" column="MERKMALCOUNT"/>
+			<collection property="WVCOUNTLIST" ofType="java.util.Map" javaType="java.util.List">
+				<result property="MEMERKMAL" column="MEMERKMAL"/>
+				<result property="ALARMCOUNT" column="ALARMCOUNT"/>
+				<result property="NOKCOUNT" column="NOKCOUNT"/>
+				<result property="TOTALCOUNT" column="TOTALCOUNT"/>
+				<result property="CPKALARM" column="CPKALARM"/>
+				<result property="MEMERKART" column="MEMERKART"/>
+			</collection>
+		</collection>
+	</resultMap>
+	<select id="getQaMachineData" resultMap="machineDataMap" parameterType="java.lang.String">
+		SELECT IFNULL(t.TEPREINRNR,'') AS TEPREINRNR,IFNULL(t.TEAUFTRAGGBBEZ,'') AS TEAUFTRAGGBBEZ,IFNULL(t.TEAUFTRAGSTR,'') AS TEAUFTRAGSTR,
+		t.TETEIL,t.DLCOUNT,t.MERKMALCOUNT,m.MEMERKMAL,m.ALARMCOUNT,m.NOKCOUNT,m.TOTALCOUNT,m.CPKALARM,m.MEMERKART
+		FROM TEIL t
+		LEFT JOIN MERKMAL m ON t.TETEIL=m.METEIL
+		WHERE 1=1
+		<if test="productLineName !='' and productLineName !=null and productLineName !='undefined'">
+			and t.TEKOSTST = #{productLineName}
+		</if>
+		<if test="processNum !='' and processNum !=null and processNum !='undefined'">
+			and t.TEAUFTRAGSTR = #{processNum}
+		</if>
+		ORDER BY t.TEAUFTRAGSTR
+	</select>
+	<select id="getQaProcessData" parameterType="java.lang.String" resultType="map">
+		SELECT IFNULL(TEAUFTRAGGBBEZ,'') AS TEAUFTRAGGBBEZ,IFNULL(TEAUFTRAGSTR,'') AS TEAUFTRAGSTR FROM TEIL
+		WHERE 1=1
+		<if test="productLineName !='' and productLineName !=null and productLineName !='undefined'">
+			and TEKOSTST = #{productLineName}
+		</if>
+		GROUP BY TEAUFTRAGGBBEZ,TEAUFTRAGSTR
+		ORDER BY TEAUFTRAGSTR
+	</select>
+	<resultMap type="java.util.Map" id="teilDataMap">
+		<id property="TETEIL" column="TETEIL"/>
+		<result property="TETEILNR" column="TETEILNR"/>
+		<result property="TEBEZEICH" column="TEBEZEICH"/>
+		<result property="DLCOUNT" column="DLCOUNT"/>
+		<result property="MERKMALCOUNT" column="MERKMALCOUNT"/>
+			<collection property="WVCOUNTLIST" ofType="java.util.Map" javaType="java.util.List">
+				
+				<result property="MEMERKMAL" column="MEMERKMAL"/>
+				<result property="ALARMCOUNT" column="ALARMCOUNT"/>
+				<result property="NOKCOUNT" column="NOKCOUNT"/>
+				<result property="TOTALCOUNT" column="TOTALCOUNT"/>
+				<result property="CPKALARM" column="CPKALARM"/>
+			</collection>
+	</resultMap>
+	<select id="getQaTeilData" resultMap="teilDataMap" parameterType="java.lang.String">
+		SELECT IFNULL(t.TETEILNR,'') AS TETEILNR,IFNULL(t.TEBEZEICH,'') AS TEBEZEICH,t.TETEIL,t.DLCOUNT,t.MERKMALCOUNT,m.MEMERKMAL,m.ALARMCOUNT,m.NOKCOUNT,m.TOTALCOUNT,m.CPKALARM
+		FROM TEIL t
+		LEFT JOIN MERKMAL m ON t.TETEIL=m.METEIL
+		WHERE 1=1
+		<if test="productLineName !='' and productLineName !=null and productLineName !='undefined'">
+			and t.TEKOSTST = #{productLineName}
+		</if>
+		<if test="machineName !='' and machineName !=null and machineName !='undefined'">
+			and t.TEPREINRNR = #{machineName}
+		</if>
+		<if test="processNum !='' and processNum !=null and processNum !='undefined'">
+			and t.TEAUFTRAGSTR = #{processNum}
+		</if>
+		ORDER BY t.TETEIL
+	</select>
+	<select id="getDztChartData125" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+		SELECT * FROM (
+		select TOP 125 w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT,m.MEUGW,m.MEOGW,m.MENENNMAS,m.MEMERKART,m.MEMERKBEZ,p.PRVORNAME,w.WV0014,
+		ETTEXT = STUFF( (SELECT ',' + e.ETTEXT FROM EREIGTXT e WHERE PATINDEX('%(' + RTRIM(e.ETTEXTNR) + ')%','(' + w.WV0005 + ')') > 0
+		ORDER BY PATINDEX('%(' + RTRIM(e.ETTEXTNR) + ')%','(' + w.WV0005 + ')')FOR XML PATH ('')),1,1,'')
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+		LEFT JOIN PRUEFER p ON CONCAT(w.WVPRUEFER,'')=p.PRPRUEFER
+		where WVMERKMAL=#{merkmalId} and WVTEIL=#{teilId}
+		ORDER BY w.WVWERTNR DESC) a
+		ORDER BY a.WVWERTNR
+	</select>
+	<select id="getDztChartDataByDate" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+		select w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT,m.MEUGW,m.MEOGW,m.MENENNMAS,m.MEMERKART,m.MEMERKBEZ,p.PRVORNAME,w.WV0014,
+		ETTEXT = STUFF( (SELECT ',' + e.ETTEXT FROM EREIGTXT e WHERE PATINDEX('%(' + RTRIM(e.ETTEXTNR) + ')%','(' + w.WV0005 + ')') > 0
+		ORDER BY PATINDEX('%(' + RTRIM(e.ETTEXTNR) + ')%','(' + w.WV0005 + ')')FOR XML PATH ('')),1,1,'')
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+		LEFT JOIN PRUEFER p ON CONCAT(w.WVPRUEFER,'')=p.PRPRUEFER
+		where WVMERKMAL=#{merkmalId} and WVTEIL=#{teilId}
+		<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and w.WVDATZEIT &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+			and w.WVDATZEIT &lt; #{endTime}
+		</if>
+		ORDER BY w.WVDATZEIT
+	</select>
+	<resultMap type="java.util.Map" id="plMonthReportMap">
+		<result property="TEKOSTST" column="TEKOSTST"/>
+		<collection property="DATELIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="MONTH" column="MONTH"/>
+			<collection property="PASSRATELIST" ofType="java.util.Map" javaType="java.util.List">
+				<result property="MTEIL" column="MTEIL"/>
+				<result property="MMERKMAL" column="MMERKMAL"/>
+				<result property="MEMERKART" column="MEMERKART"/>
+				<result property="PASSRATE" column="PASSRATE"/>
+				<result property="CPKALARM" column="CPKALARM"/>
+			</collection>
+		</collection>
+	</resultMap>
+	<select id="getPlMonthReportData" resultMap="plMonthReportMap">
+		SELECT m.PASSRATE,m.MONTH,m.MEMERKART,t.TEKOSTST,m.MTEIL,m.MMERKMAL,m.CPKALARM
+		FROM MONTHREPORT m
+		LEFT JOIN TEIL t ON t.TETEIL=m.MTEIL
+		WHERE t.TEKOSTST IN
+		<foreach collection="productLines" open="(" close=")" separator="," item="item" index="i">
+					#{item}
+		</foreach> 
+		<if test="reportYear !='' and reportYear !=null and reportYear !='undefined'">
+				AND m.MONTH LIKE #{reportYear}||'%'
+			</if>
+		
+	</select>
+	<resultMap type="java.util.Map" id="machineMonthReportMap">
+		<result property="TEPREINRNR" column="TEPREINRNR"/>
+		<collection property="DATELIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="MONTH" column="MONTH"/>
+			<collection property="PASSRATELIST" ofType="java.util.Map" javaType="java.util.List">
+				<result property="MTEIL" column="MTEIL"/>
+				<result property="MMERKMAL" column="MMERKMAL"/>
+				<result property="MEMERKART" column="MEMERKART"/>
+				<result property="PASSRATE" column="PASSRATE"/>
+				<result property="CPKALARM" column="CPKALARM"/>
+			</collection>
+		</collection>
+	</resultMap>
+	<select id="getMachineMonthReportData" parameterType="cn.qdas.bi.bean.QualityBoard" resultMap="machineMonthReportMap">
+		SELECT m.PASSRATE,m.MONTH,m.MEMERKART,ifnull(t.TEPREINRNR,'') AS TEPREINRNR,m.MTEIL,m.MMERKMAL,m.CPKALARM
+		FROM MONTHREPORT m
+		LEFT JOIN TEIL t ON t.TETEIL=m.MTEIL
+		WHERE t.TEKOSTST=#{productLineName}
+		<if test="processNum !='' and processNum !=null and processNum !='undefined'">
+				and t.TEAUFTRAGSTR = #{processNum}
+			</if>
+		<if test="year !='' and year !=null and year !='undefined'">
+				AND m.MONTH LIKE #{year}||'%'
+			</if>
+			
+	</select>
+	<resultMap type="java.util.Map" id="teilMonthReportMap">
+		<result property="TETEILNR" column="TETEILNR"/>
+		<result property="TEBEZEICH" column="TEBEZEICH"/>
+		<collection property="DATELIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="MONTH" column="MONTH"/>
+			<collection property="PASSRATELIST" ofType="java.util.Map" javaType="java.util.List">
+				<result property="MTEIL" column="MTEIL"/>
+				<result property="MMERKMAL" column="MMERKMAL"/>
+				<result property="MEMERKART" column="MEMERKART"/>
+				<result property="PASSRATE" column="PASSRATE"/>
+			</collection>
+		</collection>
+	</resultMap>
+	<select id="getTeilMonthReportData" parameterType="cn.qdas.bi.bean.QualityBoard" resultMap="teilMonthReportMap">
+		SELECT m.PASSRATE,m.MONTH,m.MEMERKART,IFNULL(t.TETEILNR,'') AS TETEILNR,IFNULL(t.TEBEZEICH,'') AS TEBEZEICH,m.MTEIL,m.MMERKMAL
+		FROM MONTHREPORT m
+		LEFT JOIN TEIL t ON t.TETEIL=m.MTEIL
+		WHERE 1=1
+		<if test="processNum !='' and processNum !=null and processNum !='undefined'">
+			and t.TEAUFTRAGSTR = #{processNum}
+		</if>
+		<if test="productLineName !='' and productLineName !=null and productLineName !='undefined'">
+			and t.TEKOSTST = #{productLineName}
+		</if>
+		<if test="machineName !='' and machineName !=null and machineName !='undefined'">
+			and t.TEPREINRNR = #{machineName}
+		</if>
+		AND m.MONTH LIKE #{year}||'%'
+		ORDER BY m.MONTH
+	</select>
+	<select id="getMonthReportCombobox" resultType="map">
+		<!-- SELECT MONTH FROM MONTHREPORT GROUP BY MONTH ORDER BY MONTH DESC -->
+		SELECT substr(MONTH,0,5) AS YEAR FROM MONTHREPORT GROUP BY YEAR ORDER BY MONTH DESC
+	</select>
+	<select id="getQaMerkmalDetails" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+		SELECT METEIL,MEMERKMAL,MEMERKBEZ,MENENNMAS,MEUGW,MEOGW,MEEINHEITTEXT,MEMERKART,CPK,ALARMCOUNT,NOKCOUNT,TOTALCOUNT,LOWCL,UPCL FROM MERKMAL
+		WHERE METEIL = #{teilId} 
+		
+	</select>
+	<select id="getStartIndex" parameterType="cn.qdas.bi.bean.QualityBoard" resultType="map">
+		SELECT TOP 125 WVWERTNR FROM WERTEVAR WHERE WVTEIL=#{teilId} AND WVMERKMAL=#{merkmalId} ORDER BY WVWERTNR DESC
+	</select>
+	<select id="getAllProductLineByFactoryName" resultType="map">
+		SELECT productLine_name FROM productLine where factory_name=#{factoryName}
+	</select>
+</mapper>

@@ -1,0 +1,184 @@
+﻿
+
+* {
+    font-family: Arial, Microsoft YaHei, 微软雅黑;
+}
+/*颜色控制 start*/
+.panel-body {
+    background-color: #ffffff;
+}
+
+.textbox-invalid {
+    border-color: #f98c8c;
+    background-color: #ffffff;
+    box-shadow: 0px 0px 2px #f98c8c;
+}
+
+.validatebox-invalid {
+    border-color: #ffa8a8;
+    background-color: #ffffff;
+    color: #000;
+}
+
+.panel-header,
+.panel-body {
+    border-color: #f6f6f6;
+}
+
+.header-bar {
+    background: #48B18A repeat-x center 50%;
+}
+
+.accordion .accordion-header-selected {
+    background: #48B18A !important;
+    color: #fff;
+}
+
+.window .window-header {
+    padding: 10px 0 10px 20px;
+    background-color: #48B18A !important;
+}
+
+.window, .window .window-body {
+    border-color: rgb(102, 151, 124) !important;
+}
+
+.l-btn:hover {
+    border: 1px solid rgb(102, 151, 124);
+}
+
+.combobox-item-selected {
+    background-color: #48B18A;
+}
+
+.calendar-selected {
+    background-color: #119875;
+    border: 1px solid rgb(102, 151, 124);
+}
+
+.tabs-tool {
+    height: 27px !important;
+    border-radius: 5px;
+}
+
+    .tabs-tool .l-btn-text {
+        line-height: 20px;
+        font-size: 12px;
+    }
+
+.datagrid-row-selected {
+    background: #51c097 !important;
+}
+
+/*策划文件 start*/
+.nav-sidebar > li.active > a {
+    color: #339c62 !important;
+}
+
+.nav-sidebar > li > a:focus, .nav-sidebar > li > a:hover {
+    color: #339c62 !important;
+}
+
+.iconset .thumbnail.selected, .table-files .selected {
+    background: #428660 !important;
+}
+
+.sortorder:after {
+    color: #428660 !important;
+}
+
+.modal .modal-header {
+    background: #48B18A !important;
+}
+
+.btn-primary {
+    background-color: #37905f !important;
+}
+
+    .btn-primary:hover {
+        background-color: #44a971 !important;
+    }
+/*策划文件 end*/
+/*颜色控制 end*/
+#ith + span.textbox {
+    width: 135px !important;
+}
+
+
+.panel-header {
+    height: 36px;
+    width: 173px;
+    padding-top: 9px;
+}
+
+.window .window-header .panel-title {
+    color: #f4f4f4;
+}
+
+.panel-with-icon {
+    padding-left: 24px;
+}
+
+
+.panel-title {
+    font-size: 14px;
+    font-weight: normal;
+}
+
+#ith + span.textbox {
+    width: 100px !important;
+}
+
+/*.combobox-item-selected {
+        background-color: #0197ba;
+    }*/
+
+.tabs-title {
+    font-size: 12px;
+}
+
+.fa {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    position: absolute;
+    top: 50%;
+    margin-top: -8px;
+    font-size: 1px;
+    left: 8px;
+    font-size: 14px;
+}
+
+.icon {
+    padding-left: 0px;
+}
+
+.function_menu {
+    border-left: none;
+    border-top: none;
+    height: 42px;
+}
+
+#left-accordion-menu .easyui-fluid.l-btn-plain:hover {
+    background: #E0E1E1;
+    border: 1px solid #E0E1E1;
+}
+
+.tree-node {
+    height: 27px !important;
+}
+
+.textbox-focused {
+    border-color: #8eceac;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(137, 190, 151, 0.6);
+}
+.radiobutton-inner {
+    background: #48b18a!important;
+}
+.radiobutton {
+    border: 2px solid #48b18a!important;
+}
+.switchbutton-on {
+    background: #6dbfa1!important;
+}

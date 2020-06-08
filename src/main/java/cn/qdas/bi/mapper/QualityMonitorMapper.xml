@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qdas.bi.dao.QualityMonitorMapper">
+	<sql id="alarmTimeSearch">
+		<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and ALARM_DATETIME &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+			and ALARM_DATETIME &lt; #{endTime}
+		</if>
+	</sql>
+	<sql id="wvTimeSearch">
+		<if test="startTime !='' and startTime!=null and startTime !='undefined'">
+			and WVDATZEIT &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null and endTime !='undefined'">
+			and WVDATZEIT &lt; #{endTime}
+		</if>
+	</sql>
+	<select id="getProductLineByFactory" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultType="map">
+		SELECT productLine_name,workShop_name,factory_name,productLine_topPosition,productLine_leftPosition,point_topPosition,point_leftPosition
+		FROM productLine WHERE workShop_name=#{workShopName} and factory_name=#{factoryName}
+	</select>
+	<select id="getProductLineAlarmData" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultType="map">
+		SELECT w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,m.MEMERKBEZ,m.MEMERKART,m.MEUGW,m.MEOGW,MENORMISTUN,MENORMISTOB,t.TEKOSTST,t.TETEILNR,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+		LEFT JOIN TEIL t ON w.WVTEIL=t.TETEIL 
+		WHERE t.TEKOSTST IN 
+			<foreach collection="productLineNames" open="(" close=")" separator="," item="item" index="i">
+					#{item}
+			</foreach>
+		AND w.WVWERTNR IN(
+		SELECT r.WVWERTNR FROM(
+		SELECT TEKOSTST,WVTEIL,WVWERTNR,row_number () OVER (PARTITION BY TEKOSTST ORDER BY WVDATZEIT DESC, WVWERTNR DESC) AS ROWINDEX
+			FROM WERTEVAR LEFT JOIN TEIL ON TETEIL=WVTEIL WHERE WVDATZEIT &gt; #{startTime} AND TEKOSTST IN 
+			<foreach collection="productLineNames" open="(" close=")" separator="," item="item" index="i">
+					#{item}
+			</foreach>
+			GROUP BY TEKOSTST,WVTEIL,WVWERTNR,WVDATZEIT
+		<!-- SELECT  WVTEIL,WVWERTNR,row_number() OVER (PARTITION BY WVTEIL ORDER BY WVDATZEIT DESC,WVWERTNR DESC) AS ROWINDEX FROM WERTEVAR where WVDATZEIT &gt; #{startTime}
+		AND WVTEIL IN (SELECT DISTINCT TETEIL FROM TEIL WHERE TEKOSTST IN 
+			<foreach collection="productLineNames" open="(" close=")" separator="," item="item" index="i">
+					#{item}
+			</foreach>
+		) GROUP BY WVTEIL,WVWERTNR,WVDATZEIT -->
+		<!-- SELECT WVTEIL,t.TETEILNR,WVWERTNR,row_number () OVER (PARTITION BY t.TETEILNR ORDER BY WVDATZEIT DESC ) AS ROWINDEX FROM WERTEVAR LEFT JOIN TEIL t ON t.TETEIL=WVTEIL 
+		WHERE WVDATZEIT &gt; #{startTime} AND WVTEIL IN ( SELECT DISTINCT TETEIL FROM TEIL WHERE TEKOSTST IN 
+			<foreach collection="productLineNames" open="(" close=")" separator="," item="item" index="i">
+					#{item}
+			</foreach>
+		) GROUP BY WVTEIL,t.TETEILNR,WVDATZEIT, WVWERTNR -->
+		) r
+		WHERE r.ROWINDEX &lt; 2 AND r.WVTEIL=w.WVTEIL)
+		ORDER BY t.TEKOSTST,w.WVDATZEIT DESC
+	</select>
+	<resultMap type="java.util.Map" id="processAlarmMap">
+		<result property="TEAUFTRAGGBBEZ" column="TEAUFTRAGGBBEZ"/>
+		<result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
+		<collection property="MEASURELIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="WVTEIL" column="WVTEIL"/>
+			<result property="WVMERKMAL" column="WVMERKMAL"/>
+			<result property="WVWERTNR" column="WVWERTNR"/>
+			<result property="WVWERT" column="WVWERT"/>
+			<result property="MEMERKART" column="MEMERKART"/>
+			<result property="MEUGW" column="MEUGW"/>
+			<result property="MEOGW" column="MEOGW"/>
+			<result property="MENORMISTUN" column="MENORMISTUN"/>
+			<result property="MENORMISTOB" column="MENORMISTOB"/>
+		</collection>
+	</resultMap>
+	<select id="getProcessAlarmData" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultMap="processAlarmMap">
+		SELECT ISNULL(t.TEAUFTRAGGBBEZ,'') AS TEAUFTRAGGBBEZ,t.TEAUFTRAGSTR,w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW,MENORMISTUN,MENORMISTOB
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+		LEFT JOIN TEIL t ON w.WVTEIL=t.TETEIL 
+		WHERE t.TEKOSTST = #{productLineName}
+		AND w.WVWERTNR IN(
+		SELECT r.WVWERTNR FROM (
+		SELECT TEAUFTRAGSTR,WVTEIL,WVWERTNR,row_number () OVER (PARTITION BY TEAUFTRAGSTR ORDER BY WVDATZEIT DESC, WVWERTNR DESC) AS ROWINDEX
+			FROM WERTEVAR LEFT JOIN TEIL ON TETEIL=WVTEIL WHERE WVDATZEIT &gt; #{startTime} AND TEKOSTST =#{productLineName}
+			GROUP BY TEAUFTRAGSTR,WVTEIL,WVWERTNR,WVDATZEIT
+		<!-- SELECT  WVTEIL,WVWERTNR,row_number() OVER (PARTITION BY WVTEIL ORDER BY WVDATZEIT DESC,WVWERTNR DESC) AS ROWINDEX FROM WERTEVAR where WVDATZEIT &gt; #{startTime}
+		AND WVTEIL IN (SELECT DISTINCT TETEIL FROM TEIL WHERE TEKOSTST = #{productLineName} ) GROUP BY WVTEIL,WVWERTNR,WVDATZEIT -->
+		<!-- SELECT WVTEIL,t.TETEILNR,WVWERTNR,row_number () OVER (PARTITION BY t.TETEILNR ORDER BY WVDATZEIT DESC ) AS ROWINDEX FROM WERTEVAR LEFT JOIN TEIL t ON t.TETEIL=WVTEIL 
+		WHERE WVDATZEIT &gt; #{startTime} AND WVTEIL IN ( SELECT DISTINCT TETEIL FROM TEIL WHERE TEKOSTST = #{productLineName}) GROUP BY WVTEIL,t.TETEILNR,WVDATZEIT, WVWERTNR -->
+		) r
+		WHERE r.ROWINDEX &lt; 2 AND r.WVTEIL=w.WVTEIL)
+		ORDER BY t.TEAUFTRAGSTR
+	</select>
+	<resultMap type="java.util.Map" id="teilMachineMap">
+		<result property="TEPREINRNR" column="TEPREINRNR"/>
+		<collection property="MEASURELIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="WVWERT" column="WVWERT"/>
+			<result property="MEMERKART" column="MEMERKART"/>
+			<result property="MEUGW" column="MEUGW"/>
+			<result property="MEOGW" column="MEOGW"/>
+			<result property="MENORMISTUN" column="MENORMISTUN"/>
+			<result property="MENORMISTOB" column="MENORMISTOB"/>
+		</collection>
+	</resultMap>
+	<select id="getMachineAlarmData" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultMap="teilMachineMap">
+		SELECT w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW,MENORMISTUN,MENORMISTOB,ISNULL(t.TEPREINRNR, ' ') AS TEPREINRNR
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+		LEFT JOIN TEIL t ON w.WVTEIL=t.TETEIL 
+		WHERE t.TEKOSTST =#{productLineName} AND t.TEAUFTRAGSTR=#{processId}
+		AND w.WVWERTNR IN(
+		SELECT r.WVWERTNR FROM (
+		SELECT TEPREINRNR,WVTEIL,WVWERTNR,row_number () OVER (PARTITION BY TEPREINRNR ORDER BY WVDATZEIT DESC, WVWERTNR DESC) AS ROWINDEX
+		FROM WERTEVAR LEFT JOIN TEIL ON TETEIL=WVTEIL WHERE WVDATZEIT &gt; #{startTime} AND TEKOSTST =#{productLineName} AND TEAUFTRAGSTR =#{processId}
+		GROUP BY TEPREINRNR,WVTEIL,WVWERTNR,WVDATZEIT
+		<!-- SELECT  WVTEIL,WVWERTNR,row_number() OVER (PARTITION BY WVTEIL ORDER BY WVDATZEIT DESC,WVWERTNR DESC) AS ROWINDEX FROM WERTEVAR where WVDATZEIT &gt; #{startTime}
+		AND WVTEIL IN (SELECT DISTINCT TETEIL FROM TEIL WHERE TEKOSTST =#{productLineName} AND TEAUFTRAGSTR=#{processId}
+		) GROUP BY WVTEIL,WVWERTNR,WVDATZEIT -->
+		<!-- SELECT w.WVTEIL,t.TETEILNR,w.WVWERTNR,row_number () OVER (PARTITION BY t.TETEILNR ORDER BY w.WVDATZEIT DESC ) AS ROWINDEX FROM WERTEVAR w LEFT JOIN TEIL t ON t.TETEIL=w.WVTEIL 
+		WHERE w.WVDATZEIT &gt; #{startTime} AND w.WVTEIL IN ( SELECT DISTINCT TETEIL FROM TEIL WHERE TEKOSTST =#{productLineName} AND TEAUFTRAGSTR=#{processId}) GROUP BY w.WVTEIL,t.TETEILNR,w.WVDATZEIT, w.WVWERTNR -->
+		) r WHERE r.ROWINDEX &lt; 2 AND r.WVTEIL=w.WVTEIL) ORDER BY TEPREINRBEZ
+	</select>
+	<resultMap type="java.util.Map" id="teilAlarmMap">
+		<result property="TETEIL" column="TETEIL"/>
+		<result property="TETEILNR" column="TETEILNR"/>
+		<result property="TEBEZEICH" column="TEBEZEICH"/>
+		<collection property="MEASURELIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="WVWERT" column="WVWERT"/>
+			<result property="MEMERKART" column="MEMERKART"/>
+			<result property="MEUGW" column="MEUGW"/>
+			<result property="MEOGW" column="MEOGW"/>
+			<result property="MENORMISTUN" column="MENORMISTUN"/>
+			<result property="MENORMISTOB" column="MENORMISTOB"/>
+		</collection>
+	</resultMap>
+	<select id="getTeilAlarmData" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultMap="teilAlarmMap">
+		SELECT t.TETEIL,ISNULL(t.TETEILNR,'') AS TETEILNR,ISNULL(t.TEBEZEICH,'') AS TEBEZEICH,w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW,MENORMISTUN,MENORMISTOB
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+		LEFT JOIN TEIL t ON w.WVTEIL=t.TETEIL 
+		WHERE t.TEPREINRNR =#{machineName} AND t.TEKOSTST=#{productLineName} AND t.TEAUFTRAGSTR=#{processId}
+		AND w.WVWERTNR IN(
+		SELECT r.WVWERTNR FROM (
+		SELECT  WVTEIL,WVWERTNR,row_number() OVER (PARTITION BY WVTEIL ORDER BY WVDATZEIT DESC,WVWERTNR DESC) AS ROWINDEX FROM WERTEVAR where WVDATZEIT &gt; #{startTime}
+		AND WVTEIL IN (SELECT DISTINCT TETEIL FROM TEIL WHERE TEPREINRNR =#{machineName} AND TEKOSTST=#{productLineName} AND TEAUFTRAGSTR=#{processId} ) GROUP BY WVTEIL,WVWERTNR,WVDATZEIT
+		<!-- SELECT w.WVTEIL,t.TETEILNR,w.WVWERTNR,row_number () OVER (PARTITION BY t.TETEILNR ORDER BY w.WVDATZEIT DESC ) AS ROWINDEX FROM WERTEVAR w LEFT JOIN TEIL t ON t.TETEIL=w.WVTEIL 
+		WHERE w.WVDATZEIT &gt; #{startTime} AND w.WVTEIL IN ( SELECT DISTINCT TETEIL FROM TEIL WHERE TEKOSTST =#{productLineName} AND TEAUFTRAGSTR=#{processId} AND TEPREINRNR =#{machineName}) GROUP BY w.WVTEIL,t.TETEILNR,w.WVDATZEIT, w.WVWERTNR -->
+		) r WHERE r.ROWINDEX &lt; 2 AND r.WVTEIL=w.WVTEIL)
+		ORDER BY t.TETEIL
+	</select>
+	<resultMap type="java.util.Map" id="getTeilTop3ValueMap">
+		<result property="WVTEIL" column="WVTEIL"/>
+		<result property="WVWERTNR" column="WVWERTNR"/>
+		<collection property="MEASURELIST" ofType="java.util.Map" javaType="java.util.List">
+			<result property="WVMERKMAL" column="WVMERKMAL"/>
+			<result property="WVWERT" column="WVWERT"/>
+			<result property="MEMERKART" column="MEMERKART"/>
+			<result property="MEUGW" column="MEUGW"/>
+			<result property="MEOGW" column="MEOGW"/>
+			<result property="MENORMISTUN" column="MENORMISTUN"/>
+			<result property="MENORMISTOB" column="MENORMISTOB"/>
+			<result property="WVDATZEIT" column="WVDATZEIT"/>
+			<result property="PRVORNAME" column="PRVORNAME"/>
+		</collection>
+	</resultMap>
+	<select id="getTeilTop3Value" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultMap="getTeilTop3ValueMap">
+		<!-- SELECT z.WVTEIL,w.WVMERKMAL,z.WVWERTNR,
+		w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW,m.MENORMISTUN,m.MENORMISTOB,
+			CONVERT (VARCHAR (100),w.WVDATZEIT,20) AS WVDATZEIT,p.PRVORNAME
+		FROM (
+			SELECT TOP 3 w.WVTEIL,t.TETEILNR,w.WVWERTNR,MAX(w.WVDATZEIT) AS WVDATZEIT  FROM WERTEVAR w LEFT JOIN TEIL t ON t.TETEIL=w.WVTEIL WHERE w.WVDATZEIT &gt; #{startTime} AND w.WVTEIL IN 
+			( SELECT DISTINCT TETEIL FROM TEIL WHERE 1=1 
+				<if test="teilNum !='' and teilNum!=null and teilNum !='undefined'">
+						and TETEILNR = #{teilNum}
+					</if>
+					<if test="teilNum =='' and teilNum ==null and teilNum =='undefined'">
+						and TETEILNR IS NULL
+					</if>
+					<if test="teilName !='' and teilName !=null and teilName !='undefined'">
+						and TEBEZEICH = #{teilName}
+					</if>
+					<if test="teilName =='' and teilName ==null and teilName =='undefined'">
+						and TEBEZEICH IS NULL
+					</if>
+					<if test="productLineName !='' and productLineName !=null and productLineName !='undefined'">
+						and TEKOSTST = #{productLineName}
+					</if>
+					<if test="productLineName =='' and productLineName ==null and productLineName =='undefined'">
+						and TEKOSTST IS NULL
+					</if>
+					<if test="machineName !='' and machineName !=null and machineName !='undefined'">
+						and TEPREINRNR = #{machineName}
+					</if>
+					<if test="machineName =='' and machineName ==null and machineName =='undefined'">
+						and TEPREINRNR IS NULL
+					</if>
+					<if test="processId !='' and processId !=null and processId !='undefined'">
+						and TEAUFTRAGSTR = #{processId}
+					</if>
+					<if test="processId =='' and processId ==null and processId =='undefined'">
+						and TEAUFTRAGSTR IS NULL
+					</if>
+			
+			) 
+			GROUP BY w.WVTEIL,t.TETEILNR,w.WVWERTNR
+			ORDER BY WVDATZEIT DESC
+		)z
+		LEFT JOIN WERTEVAR w ON z.WVTEIL=w.WVTEIL AND z.WVWERTNR=w.WVWERTNR
+		LEFT JOIN PRUEFER p ON w.WVPRUEFER = p.PRPRUEFER
+		LEFT JOIN MERKMAL m ON w.WVTEIL = m.METEIL AND w.WVMERKMAL = m.MEMERKMAL
+		ORDER BY WVDATZEIT DESC -->
+		SELECT w.WVTEIL,w.WVMERKMAL,w.WVWERTNR, w.WVWERT, m.MEMERKART, m.MEUGW, m.MEOGW, m.MENORMISTUN, m.MENORMISTOB,CONVERT (VARCHAR (100),w.WVDATZEIT,20) AS WVDATZEIT,p.PRVORNAME
+		FROM WERTEVAR w
+		LEFT JOIN PRUEFER p ON w.WVPRUEFER = p.PRPRUEFER
+		LEFT JOIN MERKMAL m ON w.WVTEIL = m.METEIL AND w.WVMERKMAL = m.MEMERKMAL
+		WHERE w.WVTEIL=#{teilId}
+		AND w.WVWERTNR IN (
+		<!-- SELECT TOP 3 WVWERTNR FROM WERTEVAR WHERE WVTEIL = #{teilId}  GROUP BY  WVWERTNR,WVDATZEIT ORDER BY WVDATZEIT DESC,WVWERTNR DESC -->
+		SELECT top 3 r.WVWERTNR from (
+		SELECT WVWERTNR,MAX(WVDATZEIT) AS WVDATZEIT FROM WERTEVAR WHERE WVTEIL = #{teilId} AND WVDATZEIT &gt; #{startTime} GROUP BY WVWERTNR ) r ORDER BY r.WVDATZEIT DESC
+		)
+		ORDER BY WVDATZEIT DESC,w.WVWERTNR DESC
+	</select>
+	
+	<select id="getMerkmalData" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultType="map">
+		SELECT m.METEIL,m.MEMERKMAL,m.MEMERKBEZ,m.MENENNMAS,m.MEMERKART,m.MEUGW,m.MEOGW,MENORMISTUN,MENORMISTOB,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) as WVDATZEIT,p.PRVORNAME,WV0014,
+		ETTEXT= STUFF( (SELECT ',' + e.ETTEXT FROM EREIGTXT e WHERE PATINDEX('%(' + RTRIM(e.ETTEXTNR) + ')%','(' + w.WV0005 + ')') > 0
+		ORDER BY PATINDEX('%(' + RTRIM(e.ETTEXTNR) + ')%','(' + w.WV0005 + ')')FOR XML PATH ('')),1,1,'')
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON m.METEIL=w.WVTEIL AND m.MEMERKMAL=w.WVMERKMAL
+		LEFT JOIN PRUEFER p ON w.WVPRUEFER=p.PRPRUEFER
+	<!-- 	LEFT JOIN EREIGTXT e ON w.WV0005=e.ETTEXTNR -->
+		<!-- WHERE m.METEIL IN
+		(SELECT TETEIL FROM TEIL WHERE 1=1
+		<if test="teilNum !='' and teilNum!=null and teilNum !='undefined'">
+			and TETEILNR = #{teilNum}
+		</if>
+		<if test="teilNum =='' and teilNum ==null and teilNum =='undefined'">
+			and TETEILNR IS NULL
+		</if>
+		<if test="teilName !='' and teilName !=null and teilName !='undefined'">
+			and TEBEZEICH = #{teilName}
+		</if>
+		<if test="teilName =='' and teilName ==null and teilName =='undefined'">
+			and TEBEZEICH IS NULL
+		</if>
+		<if test="productLineName !='' and productLineName !=null and productLineName !='undefined'">
+			and TEKOSTST = #{productLineName}
+		</if>
+		<if test="productLineName =='' and productLineName ==null and productLineName =='undefined'">
+			and TEKOSTST IS NULL
+		</if>
+		<if test="machineName !='' and machineName !=null and machineName !='undefined'">
+			and TEPREINRNR = #{machineName}
+		</if>
+		<if test="machineName =='' and machineName ==null and machineName =='undefined'">
+			and TEPREINRNR IS NULL
+		</if>
+		<if test="processId !='' and processId !=null and processId !='undefined'">
+			and TEAUFTRAGSTR = #{processId}
+		</if>
+		<if test="processId =='' and processId ==null and processId =='undefined'">
+			and TEAUFTRAGSTR IS NULL
+		</if>) -->
+		WHERE m.METEIL=#{teilId}
+		AND w.WVWERTNR=#{wertevarId}
+		<if test="operator !='' and operator !=null and operator !='undefined' and operator !='null'">
+			and p.PRVORNAME = #{operator}
+		</if>
+		<if test="operator =='' and operator ==null and operator =='undefined' and operator =='null'">
+			and w.WVPRUEFER IS NULL
+		</if>
+	</select>
+	<select id="getRecentlyTeilMap" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultType="map">
+		<!-- SELECT DISTINCT CONCAT(t.TETEILNR,' / ',t.TEBEZEICH) as k1001k1002,w.WV0014,w.WVCHARGE,w.WVMASCHINE,CONVERT(varchar(100),WVDATZEIT, 20) as WVDATZEIT,w.WVWERTNR
+		FROM TEIL t LEFT JOIN WERTEVAR w ON t.TETEIL=w.WVTEIL
+		WHERE t.TETEIL=#{teilId}
+		AND w.WVWERTNR=(SELECT MAX(WVWERTNR) from WERTEVAR WHERE WVTEIL=#{teilId}) 
+		SELECT TETEILNR,TEBEZEICH,TEKURZBEZEICH,TEAENDSTAND,TEAUFTRAGGBBEZ,TEAUFTRAGSTR,TEKOSTST,TEPREINRNR,TEPRGRUNDBEZ,TE_1341
+		FROM TEIL WHERE 1=1 AND TETEIL=#{teilId}-->
+		<!-- <if test="teilNum !='' and teilNum!=null and teilNum !='undefined'">
+			and TETEILNR = #{teilNum}
+		</if>
+		<if test="teilNum =='' and teilNum ==null and teilNum =='undefined'">
+			and TETEILNR IS NULL
+		</if>
+		<if test="teilName !='' and teilName !=null and teilName !='undefined'">
+			and TEBEZEICH = #{teilName}
+		</if>
+		<if test="teilName =='' and teilName ==null and teilName =='undefined'">
+			and TEBEZEICH IS NULL
+		</if>
+		<if test="productLineName !='' and productLineName !=null and productLineName !='undefined'">
+			and TEKOSTST = #{productLineName}
+		</if>
+		<if test="productLineName =='' and productLineName ==null and productLineName =='undefined'">
+			and TEKOSTST IS NULL
+		</if>
+		<if test="machineName !='' and machineName !=null and machineName !='undefined'">
+			and TEPREINRNR = #{machineName}
+		</if>
+		<if test="machineName =='' and machineName ==null and machineName =='undefined'">
+			and TEPREINRNR IS NULL
+		</if>
+		<if test="processId !='' and processId !=null and processId !='undefined'">
+			and TEAUFTRAGSTR = #{processId}
+		</if>
+		<if test="processId =='' and processId ==null and processId =='undefined'">
+			and TEAUFTRAGSTR IS NULL
+		</if> -->
+		SELECT DISTINCT t.TETEILNR,t.TEBEZEICH,t.TEKURZBEZEICH,t.TEAENDSTAND,t.TEAUFTRAGGBBEZ,t.TEAUFTRAGSTR,t.TEKOSTST,t.TEPREINRNR,t.TEPRGRUNDBEZ,t.TE_1341,k.BEZ AS WV0063,w.WV0063 AS WV0063Id
+		FROM TEIL t
+		LEFT JOIN WERTEVAR w ON w.WVTEIL = t.TETEIL
+		LEFT JOIN KAT_4290 k ON k.KATKEY=w.WV0063
+		WHERE 1=1 AND TETEIL=#{teilId}
+	</select>
+	<select id="getLastAlarmDataByPl" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultType="map">
+		<!-- SELECT TOP 1 a.ALARM_EW,t.TETEILNR,m.MEMERKBEZ,CONVERT(varchar(100),a.ALARM_DATETIME, 20) AS ALARM_DATETIME,w.WVWERT,m.MEUGW,m.MEOGW,m.MEMERKART
+		FROM ALARM_VALUES a
+		LEFT JOIN TEIL t ON a.K1000=t.TETEIL
+		LEFT JOIN MERKMAL m ON m.MEMERKMAL=a.K2000
+		LEFT JOIN WERTEVAR w ON a.K0000=w.WVWERTNR
+		WHERE a.K1000 IN (SELECT TETEIL FROM TEIL WHERE TEKOSTST =#{productLineName})
+		AND a.ALARM_EW IN (1,2,65537)
+		ORDER BY a.ALARM_DATETIME DESC -->
+		SELECT TOP 1 t.TETEILNR,m.MEMERKBEZ,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT
+		FROM WERTEVAR w
+		LEFT JOIN TEIL t ON t.TETEIL=w.WVTEIL
+		LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+		WHERE t.TEKOSTST=#{productLineName}
+		AND WVDATZEIT &gt;#{startTime}
+		ORDER BY w.WVDATZEIT DESC
+	</select>
+	<select id="getWorkShopByFactory" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultType="map">
+		SELECT workShop_name,workShop_drawing FROM workShop WHERE factory_name =#{factoryName} LIMIT #{page}, 1 
+	</select>
+	<select id="getWorkShopCountByFactory" parameterType="cn.qdas.bi.bean.QualityMonitorBean" resultType="map">
+		SELECT count(0) AS wsCount FROM workShop WHERE factory_name = #{factoryName}
+	
+	</select>
+	
+	
+</mapper>

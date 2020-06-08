@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qdas.bi.dao.TeilDataMapper">
+	<select id="getAllTeil" parameterType="cn.qdas.bi.bean.Teil" resultType="map">
+		select TETEIL,TETEILNR,TEBEZEICH,TEWERKSTOFFNR from TEIL where 1=1
+		<if test="teilNum !='' and teilNum !=null">
+			and TETEILNR like concat ('%',#{teilNum},'%')
+		</if>
+		<if test="teilName !='' and teilName !=null">
+			and TEBEZEICH like concat ('%',#{teilName},'%')
+		</if>
+		<if test="sort !='' and sort!=null">
+			order by ${sort} ${order}
+		</if>
+	</select>
+	<select id="getAllMerkmal" parameterType="cn.qdas.bi.bean.Teil" resultType="map">
+		select METEIL,MEMERKMAL,MEMERKNR,MEMERKBEZ,MENENNMAS,MEUGW,MEOGW from MERKMAL where METEIL=#{teilId}
+		<if test="merkmalName !='' and merkmalName !=null">
+			and MEMERKBEZ like concat ('%',#{merkmalName},'%')
+		</if>
+	</select>
+	<select id="getAllWertevar" parameterType="cn.qdas.bi.bean.Teil" resultType="map">
+		select w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,w.WVPRUEFER,w.WVPRUEFMIT,w.WVMASCHINE,w.WVNEST,w.WVDATZEIT,
+		p.PRVORNAME,
+		r.PMNR,r.PMBEZ
+		from WERTEVAR w 
+		LEFT JOIN PRUEFER p ON CONCAT(w.WVPRUEFER,'')=p.PRNAME 
+		LEFT JOIN PRUEFMIT r ON w.WVPRUEFMIT = r.PMPRUEFMIT
+		where WVMERKMAL=#{merkmalId} and WVTEIL=#{teilId}
+		<if test="startTime !='' and startTime!=null">
+			and WVDATZEIT &gt; #{startTime}
+		</if>
+		<if test="endTime !='' and endTime!=null">
+			and WVDATZEIT &lt; #{endTime}
+		</if>
+		<if test="sort !='' and sort!=null">
+			order by ${sort} ${order}
+		</if>
+	</select>
+</mapper>

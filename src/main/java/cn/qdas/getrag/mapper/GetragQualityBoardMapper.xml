@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.qdas.getrag.dao.GetragQualityBoardMapper">
+    <sql id="wvTimeSearch">
+        <if test="startTime !='' and startTime!=null and startTime !='undefined' and startTime !='null'">
+            and w.WVDATZEIT &gt; #{startTime}
+        </if>
+        <if test="endTime !='' and endTime!=null and endTime !='undefined' and endTime !='null'">
+            and w.WVDATZEIT &lt; #{endTime}
+        </if>
+    </sql>
+    <select id="getProductLineDataMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultMap="plDataMap">
+        SELECT ISNULL(t.TETEILNR, '') AS TETEILNR,ISNULL(t.TEKURZBEZEICH, '') AS TEKURZBEZEICH ,ISNULL(t.TEAUFTRAGSTR, '') AS TEAUFTRAGSTR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT,m.MEMERKART,m.MEUGW,m.MEOGW,m.MEMERKBEZ
+        FROM TEIL t
+        LEFT JOIN WERTEVAR w ON t.TETEIL= w.WVTEIL
+        LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL= w.WVTEIL
+        WHERE 1=1
+        <include refid="wvTimeSearch"/>
+        ORDER BY w.WVDATZEIT DESC
+    </select>
+    <resultMap id="plDataMap" type="java.util.Map">
+        <result property="TETEILNR" column="TETEILNR"/>
+        <result property="TEKURZBEZEICH" column="TEKURZBEZEICH"/>
+        <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
+        <collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
+            <result property="WVWERT" column="WVWERT"/>
+            <result property="MEMERKART" column="MEMERKART"/>
+            <result property="MEUGW" column="MEUGW"/>
+            <result property="MEOGW" column="MEOGW"/>
+            <result property="MEMERKBEZ" column="MEMERKBEZ"/>
+            <result property="WVDATZEIT" column="WVDATZEIT"/>
+        </collection>
+    </resultMap>
+
+    <select id="getMissionManageChartDataMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultMap="mmchartResultMap">
+        SELECT ISNULL(t.TETEILNR, '') AS TETEILNR,ISNULL(t.TEKURZBEZEICH, '') AS TEKURZBEZEICH ,ISNULL(t.TEAUFTRAGSTR, '') AS TEAUFTRAGSTR,t.TETEIL,
+        w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW,w.WVWERTNR,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT
+        FROM WERTEVAR w
+        LEFT JOIN TEIL t ON t.TETEIL= w.WVTEIL
+        LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL= w.WVTEIL
+        WHERE 1=1 AND t.TETEILNR=#{teilNum} AND t.TEKURZBEZEICH=#{teilK1003} AND t.TEAUFTRAGSTR=#{processNum}
+        <include refid="wvTimeSearch"/>
+        ORDER BY w.WVDATZEIT
+    </select>
+    <resultMap id="mmchartResultMap" type="java.util.Map">
+        <result property="TETEILNR" column="TETEILNR"/>
+        <result property="TEKURZBEZEICH" column="TEKURZBEZEICH"/>
+        <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
+        <collection property="wvnrList" javaType="java.util.List" ofType="java.util.Map">
+            <result property="TETEIL" column="TETEIL"/>
+            <result property="WVWERTNR" column="WVWERTNR"/>
+            <collection property="wvList" javaType="java.util.List" ofType="java.util.Map">
+                <result property="WVWERT" column="WVWERT"/>
+                <result property="MEMERKART" column="MEMERKART"/>
+                <result property="MEUGW" column="MEUGW"/>
+                <result property="MEOGW" column="MEOGW"/>
+                <result property="WVDATZEIT" column="WVDATZEIT"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="getMissionManageTeilInfoMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultType="map">
+        SELECT TETEIL,TETEILNR,TEBEZEICH,TEKURZBEZEICH,TEWERK,TEABT,TEMASCHINENR,TEAUFTRAGSTR,TEPREINRBEZ FROM TEIL WHERE TETEIL= #{teilId}
+    </select>
+    <select id="missionManageDetailsMerkmalMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultType="map">
+        SELECT m.MEMERKMAL,m.MEMERKBEZ,m.MENENNMAS,m.MEMERKART,m.MEUGW,m.MEOGW,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) as WVDATZEIT,p.PRVORNAME,t.TETEIL,t.TETEILNR
+		FROM WERTEVAR w
+		LEFT JOIN MERKMAL m ON m.METEIL=w.WVTEIL AND m.MEMERKMAL=w.WVMERKMAL
+		LEFT JOIN TEIL t ON t.TETEIL=m.METEIL
+		LEFT JOIN PRUEFER p ON w.WVPRUEFER=p.PRPRUEFER
+		WHERE t.TETEIL=#{teilId}
+		AND w.WVWERTNR=#{wvwertnr}
+    </select>
+
+    <select id="getProcessRecent24HoursDataMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultMap="processRecent24HoursMap">
+        SELECT t.TETEIL,t.TEAUFTRAGSTR,m.MEUGW,m.MEOGW,m.MEMERKART,w.WVWERT,CONVERT(varchar(13),w.WVDATZEIT, 20) AS hourDate
+        FROM TEIL t LEFT JOIN MERKMAL m ON t.TETEIL=m.METEIL
+        LEFT JOIN WERTEVAR w ON w.WVTEIL=t.TETEIL AND w.WVMERKMAL=m.MEMERKMAL
+        WHERE w.WVDATZEIT > #{startTime}
+        AND t.TETEILNR=#{teilNum} AND t.TEKURZBEZEICH=#{teilK1003} AND t.TEAUFTRAGSTR=#{processNum}
+        ORDER BY WVDATZEIT
+    </select>
+    <resultMap id="processRecent24HoursMap" type="java.util.Map">
+        <result property="TETEIL" column="TETEIL"/>
+        <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
+        <collection property="timeList" javaType="java.util.List" ofType="java.util.Map">
+            <result property="hourDate" column="hourDate"/>
+            <collection property="wvList" javaType="java.util.List" ofType="java.util.Map">
+                <result property="MEUGW" column="MEUGW"/>
+                <result property="MEOGW" column="MEOGW"/>
+                <result property="MEMERKART" column="MEMERKART"/>
+                <result property="WVWERT" column="WVWERT"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="getMerkmalRecent24HoursDataMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultMap="merkmalRecent24HoursMap">
+        SELECT m.METEIL,m.MEMERKMAL,m.MEMERKBEZ,m.MENENNMAS,m.MEUGW,m.MEOGW,m.MEEINHEITTEXT,m.MEMERKART,
+        w.WVWERT,w.WVWERTNR,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT
+        FROM MERKMAL m
+        LEFT JOIN WERTEVAR w ON m.METEIL=w.WVTEIL AND m.MEMERKMAL = w.WVMERKMAL
+        WHERE m.METEIL=#{teilId} AND w.WVDATZEIT> #{startTime}
+    </select>
+    <resultMap id="merkmalRecent24HoursMap" type="java.util.Map">
+        <result property="METEIL" column="METEIL"/>
+        <result property="MEMERKMAL" column="MEMERKMAL"/>
+        <result property="MEMERKBEZ" column="MEMERKBEZ"/>
+        <result property="MENENNMAS" column="MENENNMAS"/>
+        <result property="MEUGW" column="MEUGW"/>
+        <result property="MEOGW" column="MEOGW"/>
+        <result property="MEEINHEITTEXT" column="MEEINHEITTEXT"/>
+        <result property="MEMERKART" column="MEMERKART"/>
+        <collection property="wvList" javaType="java.util.List" ofType="java.util.Map">
+            <result property="WVWERT" column="WVWERT"/>
+            <result property="WVWERTNR" column="WVWERTNR"/>
+            <result property="WVDATZEIT" column="WVDATZEIT"/>
+        </collection>
+    </resultMap>
+    <select id="getYearComboboxDataMapper" resultType="java.util.Map">
+            SELECT substr(DATADATE,0,5) AS year FROM DAYDATA GROUP BY year ORDER BY year DESC
+    </select>
+    <select id="getProcessMonthReportDataMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultMap="processMonthReportMap">
+        SELECT TEAUFTRAGSTR,substr(DATADATE,0,11) AS DATADATE,PASSRATE FROM DAYDATA
+        WHERE DATADATE &gt; #{startTime} and DATADATE &lt; #{endTime}
+        <if test="teilNum !='' and teilNum!=null and teilNum !='undefined' and teilNum !='null'">
+            and TETEILNR = #{teilNum}
+        </if>
+        <if test="teilNum =='' or teilNum==null or teilNum =='undefined' or teilNum =='null'">
+            and TETEILNR IS NULL
+        </if>
+
+        <if test="processNum !='' and processNum!=null and processNum !='undefined' and processNum !='null'">
+            and TEAUFTRAGSTR = #{processNum}
+        </if>
+        <if test="processNum =='' or processNum==null or processNum =='undefined' or processNum =='null'">
+            and TEAUFTRAGSTR IS NULL
+        </if>
+        <if test="teilK1003 !='' and teilK1003!=null and teilK1003 !='undefined' and teilK1003 !='null'">
+            and TEKURZBEZEICH = #{teilK1003}
+        </if>
+        <if test="teilK1003 =='' or teilK1003==null or teilK1003 =='undefined' or teilK1003 =='null'">
+            and TEKURZBEZEICH IS NULL
+        </if>
+        ORDER BY DATADATE
+    </select>
+    <resultMap id="processMonthReportMap" type="java.util.Map">
+        <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
+        <collection property="timeList" javaType="java.util.List" ofType="java.util.Map">
+            <result property="DATADATE" column="DATADATE"/>
+            <collection property="wvList" javaType="java.util.List" ofType="java.util.Map">
+                <result property="PASSRATE" column="PASSRATE"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <select id="getProcessYearReportDataMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultMap="processMonthReportMap">
+        SELECT TEAUFTRAGSTR,substr(DATADATE,0,8) AS DATADATE,PASSRATE FROM DAYDATA
+        WHERE DATADATE &gt; #{startTime} and DATADATE &lt; #{endTime}
+        <if test="teilNum !='' and teilNum!=null and teilNum !='undefined' and teilNum !='null'">
+            and TETEILNR = #{teilNum}
+        </if>
+        <if test="teilNum =='' or teilNum==null or teilNum =='undefined' or teilNum =='null'">
+            and TETEILNR IS NULL
+        </if>
+
+        <if test="processNum !='' and processNum!=null and processNum !='undefined' and processNum !='null'">
+            and TEAUFTRAGSTR = #{processNum}
+        </if>
+        <if test="processNum =='' or processNum==null or processNum =='undefined' or processNum =='null'">
+            and TEAUFTRAGSTR IS NULL
+        </if>
+        <if test="teilK1003 !='' and teilK1003!=null and teilK1003 !='undefined' and teilK1003 !='null'">
+            and TEKURZBEZEICH = #{teilK1003}
+        </if>
+        <if test="teilK1003 =='' or teilK1003==null or teilK1003 =='undefined' or teilK1003 =='null'">
+            and TEKURZBEZEICH IS NULL
+        </if>
+        ORDER BY DATADATE
+    </select>
+    <select id="getRecent125NumMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultType="java.util.Map">
+        SELECT TOP 126 WVWERTNR FROM WERTEVAR WHERE WVTEIL=#{teilId} AND WVMERKMAL=#{merkmalId} ORDER BY WVWERTNR DESC
+    </select>
+
+    <select id="getChartDataMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultType="map">
+        select w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT,m.MEUGW,m.MEOGW,m.MENENNMAS,m.MEMERKART,m.MEMERKBEZ,p.PRVORNAME,t.TEKURZBEZEICH,t.TEBEZEICH,t.TETEILNR,t.TEAUFTRAGSTR
+        FROM WERTEVAR w
+        LEFT JOIN TEIL t ON t.TETEIL = w.WVTEIL
+        LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+        LEFT JOIN PRUEFER p ON CONCAT(w.WVPRUEFER,'')=p.PRPRUEFER
+        where WVMERKMAL=#{merkmalId} and WVTEIL=#{teilId}
+        <include refid="wvTimeSearch"/>
+        ORDER BY w.WVDATZEIT
+    </select>
+    <select id="getQbShowFormInfoMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultType="map">
+        SELECT w.WVTEIL,w.WVMERKMAL FROM WERTEVAR w  LEFT JOIN TEIL t ON w.WVTEIL=t.TETEIL WHERE 1=1
+        <include refid="wvTimeSearch"/>
+        <if test="teilNum !='' and teilNum!=null and teilNum !='undefined' and teilNum !='null'">
+            and t.TETEILNR = #{teilNum}
+        </if>
+        <if test="teilK1003 !='' and teilK1003!=null and teilK1003 !='undefined' and teilK1003 !='null'">
+            and t.TEKURZBEZEICH = #{teilK1003}
+        </if>
+        <if test="processNum !='' and processNum!=null and processNum !='undefined' and processNum !='null'">
+            and t.TEAUFTRAGSTR = #{processNum}
+        </if>
+        GROUP BY w.WVTEIL,w.WVMERKMAL
+    </select>
+    <select id="getProductLineComboDataMapper" parameterType="cn.qdas.getrag.bean.QualityBoardGetrag" resultType="map">
+        SELECT concat(t.TETEILNR,'/',t.TEKURZBEZEICH,'/',t.TEAUFTRAGSTR) AS PL FROM TEIL t
+        LEFT JOIN WERTEVAR w ON w.WVTEIL=t.TETEIL
+        WHERE 1=1
+        <include refid="wvTimeSearch"/>
+        GROUP BY t.TETEILNR,t.TEKURZBEZEICH,t.TEAUFTRAGSTR
+    </select>
+</mapper>
