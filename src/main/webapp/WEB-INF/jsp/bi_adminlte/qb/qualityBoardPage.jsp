@@ -39,6 +39,12 @@
         $('#plCarousel').carousel('pause');
         $('#plDiv').load('<%=basePath%>baqb/initPruductLineQbPage',{startTime:startTime,endTime:endTime});
     })
+    $('#plCarousel').on('slide.bs.carousel', function (obj) {
+        // 当前轮播索引
+        var index = $(this).find('.item').index(obj.relatedTarget);
+        console.log("索引:" + index);
+        qbCarouselIndex=index;
+    });
 </script>
 </body>
 </html>

@@ -79,7 +79,10 @@
                             <div class="box-header">
                                 <h3 class="box-title">产线看板 &nbsp;&nbsp;<small id="qbTitle1"></small><small id="qbTitle2"></small></h3>
                                 <div class="box-tools pull-right">
-                                    <button type="button" class="btn bg-teal btn-md refresh-btn" id="qbboxRefresh"><i
+                                    <button type="button" class="btn bg-teal btn-md refresh-btn" id="qbboxRefreshHidden" style="display: none"><i
+                                            class="fa fa-refresh"></i>
+                                    </button>
+                                    <button type="button" class="btn bg-teal btn-md <%--refresh-btn--%>" id="qbboxRefresh" onclick="qbBoxRefresh(1)"><i
                                             class="fa fa-refresh"></i>
                                     </button>
                                     <button type="button" class="btn bg-teal btn-md" href="#plCarousel"
@@ -103,7 +106,10 @@
                                 <i class="fa fa-bar-chart-o"></i>
                                 <h3 class="box-title">任务图表  &nbsp;&nbsp;<small id="mmTitle1"></small><small id="mmTitle2"></small></h3>
                                 <div class="box-tools pull-right">
-                                    <button type="button" class="btn btn-primary btn-md refresh-btn" id="qbchartboxRefresh"><i
+                                    <button type="button" class="btn bg-teal btn-md refresh-btn" id="qbchartboxRefreshHidden" style="display: none"><i
+                                            class="fa fa-refresh"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-primary btn-md<%-- refresh-btn--%>" id="qbchartboxRefresh" onclick="mmBoxRefresh(1)"><i
                                             class="fa fa-refresh"></i>
                                     </button>
                                     <button type="button" class="btn btn-primary btn-md" data-widget="collapse"><i
@@ -123,7 +129,10 @@
                                 <i class="fa fa-bar-chart-o"></i>
                                 <h3 class="box-title">质量分析  &nbsp;&nbsp;<small id="qaTitle1"></small><small id="qaTitle2"></small></h3>
                                 <div class="box-tools pull-right">
-                                    <button type="button" class="btn btn-info btn-md refresh-btn" id="qachartboxRefresh"><i
+                                    <button type="button" class="btn bg-teal btn-md refresh-btn" id="qachartboxRefreshHidden" style="display: none"><i
+                                            class="fa fa-refresh"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-info btn-md <%--refresh-btn--%>" id="qachartboxRefresh" onclick="qaBoxRefresh(1)"><i
                                             class="fa fa-refresh"></i>
                                     </button>
                                     <button type="button" class="btn btn-info btn-md" data-widget="collapse"><i
@@ -221,6 +230,26 @@
                     <span style="color: red" id="decimalWarn"></span>
                     <button type="button" onclick="setupDecimal();" class="btn btn-info pull-right">确定</button>
                 </form>
+                <form method="post" style="margin-top: 100px">
+                    <h3 class="control-sidebar-heading">实时监控设置</h3>
+                    <div class="form-group">
+                        <label class="control-sidebar-subheading">
+                            是否打开实时监控
+                            <input id="ifOpenRealTime" type="checkbox" class="pull-right" checked="true">
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>刷新间隔</label>
+                        <select class="form-control" id="intervalRealTime">
+                            <option selected="selected" value="20">20秒</option>
+                            <option value="10">10秒</option>
+                            <option value="30">30秒</option>
+                            <option value="60">1分钟</option>
+                        </select>
+                    </div>
+                    <span style="color: red" id="intervalWarn"></span>
+                    <button type="button" onclick="setupRealTime();" class="btn btn-info pull-right">确定</button>
+                </form>
             </div>
             <!-- /.tab-pane -->
         </div>
@@ -255,6 +284,8 @@
     var startTime=moment().startOf('second').add(-24, 'hour').format('YYYY-MM-DD HH:mm:ss');
     var endTime=moment().startOf('second').format('YYYY-MM-DD HH:mm:ss');
     var ifQbShowOpen=false;
+    var qbCarouselIndex=0;
+    var runRealTime;
     $(function () {
         $("#qbbox").boxRefresh({
             source: '<%=basePath%>baqb/initQualityBoardPage',
@@ -316,11 +347,13 @@
             console.log("选择了一个新的日期: "+start.format('YYYY-MM-DD') +' to '+end.format('YYYY-MM-DD'));
             startTime=start.format('YYYY-MM-DD HH:mm:ss');
             endTime=end.format('YYYY-MM-DD HH:mm:ss');
-            $('#qbboxRefresh').click();
-            $('#qbchartboxRefresh').click();
-            $('#qachartboxRefresh').click();
+            $('#qbboxRefreshHidden').click();
+            $('#qbchartboxRefreshHidden').click();
+            $('#qachartboxRefreshHidden').click();
         });
         initSetupTolerance();
+        runRealTime=setInterval("startRealTime()",parseInt($('#intervalRealTime').val())*1000);
+        // runRealTime=setInterval(startRealTime(),10*1000);
     })
     function plChartCarouselPrev() {
         $('#plChartCarousel').carousel('prev');
@@ -369,22 +402,13 @@
                     $('#tolerance').attr("disabled",true);
 
                 }
-            }
-        })
-    }
-    function initSetupDecimal() {
-        $.ajax({
-            url:'<%=basePath%>baqb/initSetupDecimal',
-            type:'post',
-            success:function (data) {
-                if(data.ifSetupTolerance==1){
+                if(data.ifSetupDecimal==1){
                     $('#ifSetupDecimal').prop("checked", true);
                     $('#decimal').val(data.decimal);
                 }else{
-                    $('#ifSetupDecimal').prop("checked", false);
+                    $('#ifSetupDecimal').prop("checked", true);
                     $('#decimal').val(data.decimal);
                     $('#decimal').attr("disabled",true);
-
                 }
             }
         })
@@ -418,6 +442,89 @@
         }else{
             $('#toleranceWarn').html("倍数输入有误！！！");
 
+        }
+    }
+    function setupDecimal() {
+        var reg=/^([1-9]\d*|[0]{1,1})$/;
+        if(reg.test($('#decimal').val())){
+            var flag=1;
+            if(!$('#ifSetupDecimal').prop("checked")){
+                flag=0;
+            }
+            $.ajax({
+                url:'<%=basePath%>baqb/setupDecimal',
+                type:'post',
+                data:{
+                    ifSetupDecimal:flag,
+                    decimal:$('#decimal').val()
+                },
+                success:function (data) {
+                    if(data.mess==1){
+                        window.location.reload();
+                    }else{
+                        $('#decimalWarn').html("设置失败！！！")
+                    }
+                }
+            })
+        }else{
+            $('#decimalWarn').html("位数输入有误！！！");
+        }
+    }
+    function startRealTime() {
+        console.log(1111);
+        qbBoxRefresh(1);
+        mmBoxRefresh(1);
+        qaBoxRefresh(1);
+    }
+    function qbBoxRefresh(index) {
+        if(index==1){
+            endTime=moment().startOf('second').format('YYYY-MM-DD HH:mm:ss');
+        }
+        if(qbCarouselIndex==0){
+            // $('#plDiv').empty();
+            $('#plDiv').load('<%=basePath%>baqb/initPruductLineQbPage',{startTime:startTime,endTime:endTime});
+        }else if(qbCarouselIndex==1){
+            $('#processDiv').load('<%=basePath%>baqb/initProcessQbPage',{teilNum:$('#qbTeilNumValue').val(),teilName:$('#qbTeilNameValue').val(),teilK1003:$('#qbTeilK1003Value').val(),startTime:startTime,endTime:endTime});
+        }else if(qbCarouselIndex==2){
+            $('#merkmalDiv').load('<%=basePath%>baqb/initMerkmalQbPage',{teilId:$('#qbTeilIdValue').val(),startTime: startTime,endTime: endTime});
+        }
+    }
+    function mmBoxRefresh(index) {
+        if(index==1){
+            endTime=moment().startOf('second').format('YYYY-MM-DD HH:mm:ss');
+        }
+        if(qbCarouselIndex==0){
+            initPlmmChart();
+        }else if(qbCarouselIndex==1){
+            initProcessMmChart($('#qbTeilNumValue').val(), $('#qbTeilNameValue').val(), $('#qbTeilK1003Value').val());
+        }else if(qbCarouselIndex==2){
+            var aa=0;
+            $('#merkmalRow').find('.merkmalchangeion').each(function (index,ele) {
+                if($(ele).hasClass('ion-checkmark-circled')){
+                    aa=ele.datamerkmal;
+                }
+            })
+            initMerkmalChart($('#qbTeilIdValue').val(), aa);
+        }
+    }
+    function qaBoxRefresh(index) {
+        if(index==1){
+            endTime=moment().startOf('second').format('YYYY-MM-DD HH:mm:ss');
+        }
+        if(qbCarouselIndex==0){
+            initPlRecentChart();
+        }else if(qbCarouselIndex==1){
+            initProcessRecentChart();
+        }else if(qbCarouselIndex==2){
+            $('#qaMerkmalChartDiv').load('<%=basePath%>baqb/initQaMerkmalPage',{teilId: $('#qbTeilIdValue').val(),startTime:startTime,endTime:endTime});
+        }
+    }
+    function setupRealTime() {
+        clearInterval(runRealTime);
+        if($('#ifOpenRealTime').prop('checked')){
+            runRealTime=setInterval("startRealTime()",parseInt($('#intervalRealTime').val())*1000);
+        }else{
+            clearInterval(runRealTime);
         }
     }
 </script>

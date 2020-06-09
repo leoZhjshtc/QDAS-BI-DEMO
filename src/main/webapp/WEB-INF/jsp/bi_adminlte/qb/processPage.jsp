@@ -8,6 +8,9 @@
 <head>
 </head>
 <body>
+<input type="hidden" value="${qbTeilNumValue}" id="qbTeilNumValue">
+<input type="hidden" value="${qbTeilNameValue}" id="qbTeilNameValue">
+<input type="hidden" value="${qbTeilK1003Value}" id="qbTeilK1003Value">
 <div class="row" id="processRow">
     <c:forEach items="${processList}" var="pl" varStatus="index">
         <c:choose>

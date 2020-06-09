@@ -8,6 +8,7 @@
 <head>
 </head>
 <body>
+<input type="hidden" value="${qbTeilIdValue}" id="qbTeilIdValue">
 <div class="row" id="merkmalRow">
     <c:forEach items="${merkmalList}" var="pl" varStatus="index">
         <c:choose>
@@ -20,7 +21,7 @@
                             <p>${pl.MEMERKBEZ} </p>
                         </div>
                         <div class="icon" style="position: absolute;top: 5px;">
-                            <i id="merkmal${index.index}" class="ion ion-pie-graph merkmalchangeion"></i>
+                            <i id="merkmal${index.index}" datamerkmal="${pl.MEMERKMAL}" class="ion ion-pie-graph merkmalchangeion"></i>
                         </div>
                         <a class="small-box-footer" style="cursor:pointer" onclick="getChart(this,'${pl.WVTEIL}','${pl.MEMERKMAL}');">
                             查看单值图 <i class="fa fa-arrow-circle-right"></i>
@@ -37,7 +38,7 @@
                             <p>${pl.MEMERKBEZ} </p>
                         </div>
                         <div class="icon" style="position: absolute;top: 5px;">
-                            <i id="merkmal${index.index}" class="ion ion-pie-graph merkmalchangeion"></i>  <%--ion-checkmark-circled--%>
+                            <i id="merkmal${index.index}" datamerkmal="${pl.MEMERKMAL}" class="ion ion-pie-graph merkmalchangeion"></i>  <%--ion-checkmark-circled--%>
                         </div>
                         <a class="small-box-footer" style="cursor:pointer" onclick="getChart(this,'${pl.WVTEIL}','${pl.MEMERKMAL}');">
                             查看单值图 <i class="fa fa-arrow-circle-right"></i>

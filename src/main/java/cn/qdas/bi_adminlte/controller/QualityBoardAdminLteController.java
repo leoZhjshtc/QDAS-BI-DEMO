@@ -56,12 +56,16 @@ public class QualityBoardAdminLteController {
     public String initProcessQbPage(TeilBean teilBean, Model model){
         List list=qualityBoardAdminLteService.getProcessDataService(teilBean);
         model.addAttribute("processList",list);
+        model.addAttribute("qbTeilNumValue",teilBean.getTeilNum());
+        model.addAttribute("qbTeilNameValue",teilBean.getTeilName());
+        model.addAttribute("qbTeilK1003Value",teilBean.getTeilK1003());
         return "bi_adminlte/qb/processPage";
     }
     @RequestMapping("initMerkmalQbPage")
     public String initMerkmalQbPage(TeilBean teilBean, Model model){
         List list=qualityBoardAdminLteService.getMerkmalDataService(teilBean);
         model.addAttribute("merkmalList",list);
+        model.addAttribute("qbTeilIdValue",teilBean.getTeilId());
         return "bi_adminlte/qb/merkmalPage";
     }
     @RequestMapping("getPlMissionManageChartData")
@@ -175,10 +179,18 @@ public class QualityBoardAdminLteController {
         }
         return map;
     }
-    @RequestMapping("initSetupDecimal")
+    @RequestMapping("setupDecimal")
     @ResponseBody
-    public Map initSetupDecimal(){
-        Map map=qualityBoardAdminLteService.getSetupInfoMap();
+    public Map setupDecimal(String ifSetupDecimal,String decimal){
+        Map map=new HashMap();
+        map.put("mess",1);
+        try {
+            PropertiesUtils.writeProperties("ifSetupDecimal",ifSetupDecimal,new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("decimal",decimal,new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+        }catch (Exception e){
+            e.printStackTrace();
+            map.put("mess",0);
+        }
         return map;
     }
     public static Map getCpkAndZftByTime(TeilBean teilBean,String searchStr) {

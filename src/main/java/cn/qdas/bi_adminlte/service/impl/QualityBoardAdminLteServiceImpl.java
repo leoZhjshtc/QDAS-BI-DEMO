@@ -9,6 +9,7 @@ import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -152,7 +153,7 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
     public List getPlMissionManageChartDataService(TeilBean teilBean) {
         Map setupInfoMap = getSetupInfo();
         List<Map> list = qualityBoardAdminLteMapper.getPlMissionManageChartDataMapper(teilBean);
-        if("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
+        if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
             for (int i = 0; i < list.size(); i++) {
                 List<Map> wvnrList = (List) list.get(i).get("wvnrList");
                 for (int k = 0; k < wvnrList.size(); k++) {
@@ -172,7 +173,7 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
     public List getProcessMissionManageChartDataService(TeilBean teilBean) {
         Map setupInfoMap = getSetupInfo();
         List<Map> list = qualityBoardAdminLteMapper.getProcessMissionManageChartDataMapper(teilBean);
-        if("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
+        if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
             for (int i = 0; i < list.size(); i++) {
                 List<Map> wvnrList = (List) list.get(i).get("wvnrList");
                 for (int k = 0; k < wvnrList.size(); k++) {
@@ -191,12 +192,22 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
     @Override
     public List getMerkmalChartDataService(TeilBean teilBean) {
         Map setupInfoMap = getSetupInfo();
-        List<Map> wvList=qualityBoardAdminLteMapper.getMerkmalChartDataMapper(teilBean);
-        if("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
-            for(int j=0;j<wvList.size();j++){
+        List<Map> wvList = qualityBoardAdminLteMapper.getMerkmalChartDataMapper(teilBean);
+        if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
+            for (int j = 0; j < wvList.size(); j++) {
                 Map toMap = toleranceChange(wvList.get(j).get("MEUGW") == null ? null : wvList.get(j).get("MEUGW").toString(), wvList.get(j).get("MEOGW") == null ? null : wvList.get(j).get("MEOGW").toString(), Float.parseFloat(setupInfoMap.get("tolerance").toString()));
                 wvList.get(j).put("NEWMEUGW", toMap.get("meugw"));
                 wvList.get(j).put("NEWMEOGW", toMap.get("meogw"));
+            }
+        }
+        if("1".equals(setupInfoMap.get("ifSetupDecimal"))){
+            for (int i = 0; i < wvList.size(); i++) {
+                String wert=wvList.get(i).get("WVWERT").toString();
+                if(wert.indexOf(".")!=0&&wert.substring(wert.indexOf(".")).length()>Integer.parseInt(setupInfoMap.get("decimal").toString())){
+                    BigDecimal bigDecimal = new BigDecimal(wert);
+                    bigDecimal = bigDecimal.setScale(Integer.parseInt(setupInfoMap.get("decimal").toString()),BigDecimal.ROUND_HALF_UP);
+                    wvList.get(i).put("WVWERT",bigDecimal);
+                }
             }
         }
         return wvList;
@@ -208,25 +219,27 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
         List<Map> list = qualityBoardAdminLteMapper.getMissionManageDetailsMapper(teilBean);
         for (int i = 0; i < list.size(); i++) {
             list.get(i).put("qualityLevel", "0");
-            if("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
-                Map toMap = toleranceChange(list.get(i).get("MEUGW") == null ? null : list.get(i).get("MEUGW").toString(), list.get(i).get("MEOGW") == null ? null : list.get(i).get("MEOGW").toString(), Float.parseFloat(setupInfoMap.get("tolerance").toString()));
-                list.get(i).put("NEWMEUGW", toMap.get("meugw"));
-                list.get(i).put("NEWMEOGW", toMap.get("meogw"));
-                if (null != list.get(i).get("MEMERKART") && "1".equals(list.get(i).get("MEMERKART").toString())) {
-                    if (list.get(i).get("WVWERT") != null && Float.parseFloat(list.get(i).get("WVWERT").toString().substring(list.get(i).get("WVWERT").toString().indexOf(".") - 1)) > 0) {
-                        list.get(i).put("qualityLevel", "2");
+            if (null != list.get(i).get("MEMERKART") && "1".equals(list.get(i).get("MEMERKART").toString())) {
+                if (list.get(i).get("WVWERT") != null && Float.parseFloat(list.get(i).get("WVWERT").toString().substring(list.get(i).get("WVWERT").toString().indexOf(".") - 1)) > 0) {
+                    list.get(i).put("qualityLevel", "2");
+                }
+            } else {
+                if("1".equals(setupInfoMap.get("ifSetupDecimal"))){
+                    String wert=list.get(i).get("WVWERT").toString();
+                    if(wert.indexOf(".")!=0&&wert.substring(wert.indexOf(".")).length()>Integer.parseInt(setupInfoMap.get("decimal").toString())){
+                        BigDecimal bigDecimal = new BigDecimal(wert);
+                        bigDecimal = bigDecimal.setScale(Integer.parseInt(setupInfoMap.get("decimal").toString()),BigDecimal.ROUND_HALF_UP);
+                        list.get(i).put("WVWERT",bigDecimal);
                     }
-                } else {
+                }
+                if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
+                    Map toMap = toleranceChange(list.get(i).get("MEUGW") == null ? null : list.get(i).get("MEUGW").toString(), list.get(i).get("MEOGW") == null ? null : list.get(i).get("MEOGW").toString(), Float.parseFloat(setupInfoMap.get("tolerance").toString()));
+                    list.get(i).put("NEWMEUGW", toMap.get("meugw"));
+                    list.get(i).put("NEWMEOGW", toMap.get("meogw"));
                     if ((list.get(i).get("NEWMEUGW") != null && list.get(i).get("WVWERT") != null &&
                             Float.parseFloat(String.valueOf(list.get(i).get("WVWERT"))) < Float.parseFloat(String.valueOf(list.get(i).get("NEWMEUGW")))) ||
                             (list.get(i).get("NEWMEOGW") != null && list.get(i).get("WVWERT") != null &&
                                     Float.parseFloat(String.valueOf(list.get(i).get("WVWERT"))) > Float.parseFloat(String.valueOf(list.get(i).get("NEWMEOGW"))))) {
-                        list.get(i).put("qualityLevel", "2");
-                    }
-                }
-            }else{
-                if (null != list.get(i).get("MEMERKART") && "1".equals(list.get(i).get("MEMERKART").toString())) {
-                    if (list.get(i).get("WVWERT") != null && Float.parseFloat(list.get(i).get("WVWERT").toString().substring(list.get(i).get("WVWERT").toString().indexOf(".") - 1)) > 0) {
                         list.get(i).put("qualityLevel", "2");
                     }
                 } else {
@@ -237,6 +250,8 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
                         list.get(i).put("qualityLevel", "2");
                     }
                 }
+
+
             }
 
         }
@@ -246,8 +261,8 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
     @Override
     public List getProductLineRecent24HoursDataService(TeilBean teilBean) {
         Map setupInfoMap = getSetupInfo();
-        List<Map> list=qualityBoardAdminLteMapper.getProductLineRecent24HoursDataMapper(teilBean);
-        if("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
+        List<Map> list = qualityBoardAdminLteMapper.getProductLineRecent24HoursDataMapper(teilBean);
+        if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
             for (int i = 0; i < list.size(); i++) {
                 List<Map> timeList = (List) list.get(i).get("timeList");
                 for (int k = 0; k < timeList.size(); k++) {
@@ -281,8 +296,8 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
     @Override
     public List getProcessRecent24HoursDataService(TeilBean teilBean) {
         Map setupInfoMap = getSetupInfo();
-        List<Map> list=qualityBoardAdminLteMapper.getProcessRecent24HoursDataMapper(teilBean);
-        if("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
+        List<Map> list = qualityBoardAdminLteMapper.getProcessRecent24HoursDataMapper(teilBean);
+        if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
             for (int i = 0; i < list.size(); i++) {
                 List<Map> timeList = (List) list.get(i).get("timeList");
                 for (int k = 0; k < timeList.size(); k++) {
@@ -320,7 +335,7 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
                 StringBuffer barSb = new StringBuffer();
                 List<String> lineList = new ArrayList();
                 List<Float> boxPlotList = new ArrayList();
-                if("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
+                if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
                     Map toMap = toleranceChange(list.get(i).get("MEUGW") == null ? null : list.get(i).get("MEUGW").toString(), list.get(i).get("MEOGW") == null ? null : list.get(i).get("MEOGW").toString(), Float.parseFloat(setupInfoMap.get("tolerance").toString()));
                     list.get(i).put("NEWMEUGW", toMap.get("meugw"));
                     list.get(i).put("NEWMEOGW", toMap.get("meogw"));
@@ -347,7 +362,7 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
                             }
                         }
                     }
-                }else{
+                } else {
                     for (int j = 0; j < wvList.size(); j++) {
                         if (null != list.get(i).get("MEMERKART") && "1".equals(list.get(i).get("MEMERKART").toString())) {
                             if (wvList.get(j).get("WVWERT") != null && Float.parseFloat(wvList.get(j).get("WVWERT").toString().substring(wvList.get(j).get("WVWERT").toString().indexOf(".") - 1)) > 0) {
@@ -372,7 +387,6 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
                         }
                     }
                 }
-
 
 
                 String barStr = barSb.toString();
@@ -439,8 +453,8 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
             teilBean.setTeilId(list.get(0).get("WVTEIL").toString());
             teilBean.setMerkmalId(list.get(0).get("WVMERKMAL").toString());
             chartList = qualityBoardAdminLteMapper.getMerkmalChartDataMapper(teilBean);
-            if("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
-                for(int j=0;j<chartList.size();j++){
+            if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
+                for (int j = 0; j < chartList.size(); j++) {
                     Map toMap = toleranceChange(chartList.get(j).get("MEUGW") == null ? null : chartList.get(j).get("MEUGW").toString(), chartList.get(j).get("MEOGW") == null ? null : chartList.get(j).get("MEOGW").toString(), Float.parseFloat(setupInfoMap.get("tolerance").toString()));
                     chartList.get(j).put("NEWMEUGW", toMap.get("meugw"));
                     chartList.get(j).put("NEWMEOGW", toMap.get("meogw"));

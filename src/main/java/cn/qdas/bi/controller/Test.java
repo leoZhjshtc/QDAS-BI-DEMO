@@ -4,6 +4,7 @@
 package cn.qdas.bi.controller;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.rmi.RemoteException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -39,8 +40,14 @@ public class Test {
 	 * @throws RemoteException 
 	 */
 	public static void main(String[] args){
-		Map map=gongc("-5","5", (float) 0.8);
-		System.out.println(map);
+		String reg=".";
+		int index=3;
+		float aa= (float) 0.12345678;
+//		DecimalFormat decimalFormat = new DecimalFormat(".00");
+		BigDecimal bigDecimal = new BigDecimal(aa);
+		bigDecimal = bigDecimal.setScale(index,BigDecimal.ROUND_HALF_UP);
+		String bb="0.12345678";
+		System.out.println(bb.substring(bb.indexOf(".")));
 	}
 	public static Map gongc(String meugw,String meogw,float percentage){
 		Map remap=new HashMap<String,Object>();

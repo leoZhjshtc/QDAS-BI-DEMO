@@ -59,6 +59,8 @@ public class BaseService {
         }
         map.put("ifSetupTolerance",pro.getProperty("ifSetupTolerance"));
         map.put("tolerance",pro.getProperty("tolerance"));
+        map.put("ifSetupDecimal",pro.getProperty("ifSetupDecimal"));
+        map.put("decimal",pro.getProperty("decimal"));
         return map;
     }
 }

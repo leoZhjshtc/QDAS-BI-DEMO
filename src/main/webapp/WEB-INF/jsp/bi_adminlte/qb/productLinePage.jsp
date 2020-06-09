@@ -12,7 +12,7 @@
     <c:forEach items="${plList}" var="pl" varStatus="index">
         <c:choose>
             <c:when test="${pl.qualityLevel==\"0\"}">
-                <div class="col-md-3 col-xs-12 col-sm-6">
+                <div class="col-md-3 col-xs-12 col-sm-6" >
                     <!-- small box -->
                     <div class="small-box bg-green">
                         <div class="inner">
