@@ -13,6 +13,60 @@ public class TeilBean extends BaseBean {
     private String wvwertnr;
     private String type;
     private String processNum;
+    private String qbSerchWertCount;
+    private String ifQbSerchWertCount;
+    private String ifSetupTolerance;
+    private String tolerance;
+    private String ifSetupDecimal;
+    private String decimal;
+
+    public String getIfSetupTolerance() {
+        return ifSetupTolerance;
+    }
+
+    public void setIfSetupTolerance(String ifSetupTolerance) {
+        this.ifSetupTolerance = ifSetupTolerance;
+    }
+
+    public String getTolerance() {
+        return tolerance;
+    }
+
+    public void setTolerance(String tolerance) {
+        this.tolerance = tolerance;
+    }
+
+    public String getIfSetupDecimal() {
+        return ifSetupDecimal;
+    }
+
+    public void setIfSetupDecimal(String ifSetupDecimal) {
+        this.ifSetupDecimal = ifSetupDecimal;
+    }
+
+    public String getDecimal() {
+        return decimal;
+    }
+
+    public void setDecimal(String decimal) {
+        this.decimal = decimal;
+    }
+
+    public String getIfQbSerchWertCount() {
+        return ifQbSerchWertCount;
+    }
+
+    public void setIfQbSerchWertCount(String ifQbSerchWertCount) {
+        this.ifQbSerchWertCount = ifQbSerchWertCount;
+    }
+
+    public String getQbSerchWertCount() {
+        return qbSerchWertCount;
+    }
+
+    public void setQbSerchWertCount(String qbSerchWertCount) {
+        this.qbSerchWertCount = qbSerchWertCount;
+    }
 
     public String getProcessNum() {
         return processNum;

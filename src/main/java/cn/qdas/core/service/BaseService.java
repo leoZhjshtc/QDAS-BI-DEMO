@@ -61,6 +61,8 @@ public class BaseService {
         map.put("tolerance",pro.getProperty("tolerance"));
         map.put("ifSetupDecimal",pro.getProperty("ifSetupDecimal"));
         map.put("decimal",pro.getProperty("decimal"));
+        map.put("ifQbSerchWertCount",pro.getProperty("ifQbSerchWertCount"));
+        map.put("qbSerchWertCount",pro.getProperty("qbSerchWertCount"));
         return map;
     }
 }

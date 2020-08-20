@@ -58,7 +58,11 @@
         })
         $(ele).prev('div').children('i').removeClass('ion-pie-graph').addClass('ion-checkmark-circled');
         $('#plCarousel').carousel('next');
-        $('#merkmalDiv').load('<%=basePath%>baqb/initMerkmalQbPage',{teilId:teilId,startTime: startTime,endTime: endTime});
+        // var ifQbSerchWertCount=0
+        // if($('#searchByWertCheckbox').prop('checked')){
+        //     ifQbSerchWertCount=1
+        // }
+        $('#merkmalDiv').load('<%=basePath%>baqb/initMerkmalQbPage',{teilId:teilId,startTime: startTime,endTime: endTime,ifFirstOpenMerkmal:"1"});
         $('#plChartCarousel').carousel('next');
         $('#qaChartCarousel').carousel('next');
         $('#qaMerkmalChartDiv').load('<%=basePath%>baqb/initQaMerkmalPage',{teilId:teilId,startTime:startTime,endTime:endTime});

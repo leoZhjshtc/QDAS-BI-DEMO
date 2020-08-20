@@ -13,6 +13,7 @@ public interface IQualityBoardAdminLteService {
     List getPlMissionManageChartDataService(TeilBean teilBean);
     List getProcessMissionManageChartDataService(TeilBean teilBean);
     List getMerkmalChartDataService(TeilBean teilBean);
+    List getMerkmalChartDataByTimeService(TeilBean teilBean);
     List getMissionManageDetailsService(TeilBean teilBean);
     List getProductLineRecent24HoursDataService(TeilBean teilBean);
     @DataSource("sqliteGetragDataSource")

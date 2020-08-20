@@ -127,7 +127,7 @@
                             pieTotal +=data[i].timeList[j].wvList.length;
                             for (var k = 0; k < data[i].timeList[j].wvList.length; k++) {
                                 if (data[i].timeList[j].wvList[k].MEMERKART == '1') {
-                                    if (data[i].timeList[j].wvList[k].WVWERT.toString().indexOf('.') !== 0 & parseFloat(data[i].timeList[j].wvList[k].WVWERT.toString().substring(data[i].timeList[j].wvList[k].WVWERT.toString().indexOf(".") - 1) > 0)) {
+                                    if (data[i].timeList[j].wvList[k].WVWERT.toString().indexOf('.') !== 0 & parseFloat(data[i].timeList[j].wvList[k].WVWERT.toString().substring(data[i].timeList[j].wvList[k].WVWERT.toString().indexOf(".") - 1)) > 0) {
                                         nokCount += 1;
                                         pieNokCount += 1;
                                     }

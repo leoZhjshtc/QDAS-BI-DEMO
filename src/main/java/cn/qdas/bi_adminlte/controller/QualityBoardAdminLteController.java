@@ -62,10 +62,11 @@ public class QualityBoardAdminLteController {
         return "bi_adminlte/qb/processPage";
     }
     @RequestMapping("initMerkmalQbPage")
-    public String initMerkmalQbPage(TeilBean teilBean, Model model){
+    public String initMerkmalQbPage(TeilBean teilBean, Model model,String ifFirstOpenMerkmal){
         List list=qualityBoardAdminLteService.getMerkmalDataService(teilBean);
         model.addAttribute("merkmalList",list);
         model.addAttribute("qbTeilIdValue",teilBean.getTeilId());
+        model.addAttribute("ifFirstOpenMerkmal",ifFirstOpenMerkmal);
         return "bi_adminlte/qb/merkmalPage";
     }
     @RequestMapping("getPlMissionManageChartData")
@@ -82,6 +83,11 @@ public class QualityBoardAdminLteController {
     @ResponseBody
     public List getMerkmalChartData(TeilBean teilBean){
         return qualityBoardAdminLteService.getMerkmalChartDataService(teilBean);
+    }
+    @RequestMapping("getMerkmalChartDataByTime")
+    @ResponseBody
+    public List getMerkmalChartDataByTime(TeilBean teilBean){
+        return qualityBoardAdminLteService.getMerkmalChartDataByTimeService(teilBean);
     }
     @RequestMapping("getMissionManageDetails")
     public String getMissionManageDetails(TeilBean teilBean,Model model){
@@ -165,34 +171,25 @@ public class QualityBoardAdminLteController {
     public Map getQbShowFormInfo(TeilBean teilBean){
         return qualityBoardAdminLteService.getQbShowFormInfoService(teilBean);
     }
-    @RequestMapping("setupTolerance")
+    @RequestMapping("setupAppConfig")
     @ResponseBody
-    public Map setupTolerance(String ifSetupTolerance,String tolerance){
+    public Map setupAppConfig(TeilBean teilBean){
         Map map=new HashMap();
         map.put("mess",1);
         try {
-            PropertiesUtils.writeProperties("ifSetupTolerance",ifSetupTolerance,new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
-            PropertiesUtils.writeProperties("tolerance",tolerance,new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("ifSetupTolerance",teilBean.getIfSetupTolerance(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("tolerance",teilBean.getTolerance(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("ifSetupDecimal",teilBean.getIfSetupDecimal(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("decimal",teilBean.getDecimal(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("ifQbSerchWertCount",teilBean.getIfQbSerchWertCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("qbSerchWertCount",teilBean.getQbSerchWertCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
         }catch (Exception e){
             e.printStackTrace();
             map.put("mess",0);
         }
         return map;
     }
-    @RequestMapping("setupDecimal")
-    @ResponseBody
-    public Map setupDecimal(String ifSetupDecimal,String decimal){
-        Map map=new HashMap();
-        map.put("mess",1);
-        try {
-            PropertiesUtils.writeProperties("ifSetupDecimal",ifSetupDecimal,new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
-            PropertiesUtils.writeProperties("decimal",decimal,new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
-        }catch (Exception e){
-            e.printStackTrace();
-            map.put("mess",0);
-        }
-        return map;
-    }
+
     public static Map getCpkAndZftByTime(TeilBean teilBean,String searchStr) {
         Map imgMap=new HashMap<String ,Object>();
         try {

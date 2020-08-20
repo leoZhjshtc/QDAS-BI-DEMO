@@ -37,7 +37,11 @@
 <script type="text/javascript">
     $(function () {
         $('#plCarousel').carousel('pause');
-        $('#plDiv').load('<%=basePath%>baqb/initPruductLineQbPage',{startTime:startTime,endTime:endTime});
+        var ifQbSerchWertCount=0
+        if($('#searchByWertCheckbox').prop('checked')){
+            ifQbSerchWertCount=1
+        }
+        $('#plDiv').load('<%=basePath%>baqb/initPruductLineQbPage',{startTime:startTime,endTime:endTime,qbSerchWertCount:$('#searchByWertCount').val(),ifQbSerchWertCount:ifQbSerchWertCount});
     })
     $('#plCarousel').on('slide.bs.carousel', function (obj) {
         // 当前轮播索引

@@ -69,6 +69,8 @@
         $('#qbShowBox').on('expanded.boxwidget', function () {
             $('#qbShowChartDiv').height(($(window).height()-100)*0.88);
             var intervalTime=$('#intervalTime').val()
+            lbQbShow();
+            clearInterval(qbShowInterval);
             qbShowInterval = setInterval(lbQbShow, parseInt(intervalTime) * 1000);
             ifQbShowOpen=true;
         })
@@ -160,7 +162,7 @@
                 if (data.length > 0) {
                     title = data[0].MEMERKBEZ
                     for (var i = 0; i < data.length; i++) {
-                        if (data[i].WVWERT.toString().indexOf('.') !== 0 & parseFloat(data[i].WVWERT.toString().substring(data[i].WVWERT.toString().indexOf(".") - 1) > 0)) {
+                        if (data[i].WVWERT.toString().indexOf('.') !== 0 & parseFloat(data[i].WVWERT.toString().substring(data[i].WVWERT.toString().indexOf(".") - 1)) > 0) {
                             nokCount += 1;
                         } else {
                             okCount += 1;

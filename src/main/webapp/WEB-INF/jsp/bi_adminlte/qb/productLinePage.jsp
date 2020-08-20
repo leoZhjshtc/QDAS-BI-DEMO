@@ -53,16 +53,28 @@
     </c:forEach>
 </div>
 <script type="text/javascript">
+    var mmProcessParamsObj=new Object();
     function getProcess(ele,teilNum,teilName,teilK1003) {
         $('#plRow').find('.plchangeion').each(function (index,ele) {
             $(ele).removeClass('ion-checkmark-circled').addClass('ion-pie-graph');
         })
         $(ele).prev('div').children('i').removeClass('ion-pie-graph').addClass('ion-checkmark-circled');
         $('#plCarousel').carousel('next');
+        // var ifQbSerchWertCount=0
+        // if($('#searchByWertCheckbox').prop('checked')){
+        //     ifQbSerchWertCount=1
+        // }
         $('#processDiv').load('<%=basePath%>baqb/initProcessQbPage',{teilNum:teilNum,teilName:teilName,teilK1003:teilK1003,startTime:startTime,endTime:endTime});
         $('#plChartCarousel').carousel('next');
         $('#qaChartCarousel').carousel('next');
+        if(manyMmchartArr!==undefined){
+            manyMmchartArr=[];
+        }
+        mmProcessParamsObj.teilNum=teilNum;
+        mmProcessParamsObj.teilName=teilName;
+        mmProcessParamsObj.teilK1003=teilK1003;
         $('#qaProcessChartDiv').load('<%=basePath%>baqb/initQaProcessPage',{teilNum:teilNum,teilName:teilName,teilK1003:teilK1003});
+        $('#processChartDiv').empty();
         initProcessMmChart(teilNum,teilName,teilK1003);
         $('#mmDetailsTableDiv').empty();
         $('#qbTitle1').html(teilNum+'/'+teilName+'/'+teilK1003);
