@@ -26,7 +26,7 @@
         <th>操作</th>
     </tr>
     <c:forEach items="${qaMerkmalList}" var="list" varStatus="index">
-        <tr onclick="merkmalRowClick('${list.METEIL}','${list.MEMERKMAL}')" class="qaMerkmalHandRow">
+        <tr onclick="merkmalRowClick('${list.METEIL}','${list.MEMERKMAL}')" class="qaMerkmalHandRow" data-toggle="modal" data-target="#dzt-modal-default">
             <td>${list.MEMERKMAL}</td>
             <td>${list.MEMERKBEZ}</td>
             <td>${list.MENENNMAS}</td>
@@ -76,18 +76,20 @@
 <script type="text/javascript"
         src="<%=basePath%>resources/AdminLTE/bower_components/jquery-sparkline/dist/jquery.sparkline.js"></script>
 <script type="text/javascript">
-    $('.normalline').sparkline('html',
-        {
-            enableTagOptions: true
+    $(function () {
+        $('.normalline').sparkline('html',
+            {
+                enableTagOptions: true
+            });
+        $('.sparktristate').sparkline('html', {
+            type: 'tristate',
+            colorMap: {'-1': '#f22', '1': '#f22', '0': '#5f5'},
+            tooltipValueLookups: {map: {'-1': '不合格', '0': '合格', '1': '不合格'}}
         });
-    $('.sparktristate').sparkline('html', {
-        type: 'tristate',
-        colorMap: {'-1': '#f22', '1': '#f22', '0': '#5f5'},
-        tooltipValueLookups: {map: {'-1': '不合格', '0': '合格', '1': '不合格'}}
-    });
-    $('.sparkboxplotraw').sparkline('html',
-        {enableTagOptions: true});
-    // $('.sparkboxplot').sparkline('html', {type: 'box'});
+        $('.sparkboxplotraw').sparkline('html',
+            {enableTagOptions: true});
+        // $('.sparkboxplot').sparkline('html', {type: 'box'});
+    })
     function getCpkData(index,teilId,merkmalId) {
         $.ajax({
             type:'post',
@@ -117,14 +119,24 @@
         })
     }
     function merkmalRowClick(teilId,merkmalId) {
-        window.location.href = '#maodian1';
+        /*window.location.href = '#maodian1';
         initMerkmalChart(teilId,merkmalId);
         $('#merkmalRow').find('.merkmalchangeion').each(function (index,ele) {
             $(ele).removeClass('ion-checkmark-circled').addClass('ion-pie-graph');
         })
         $('#merkmalDiv'+merkmalId).find('.merkmalchangeion').each(function (index,ele) {
             $(ele).removeClass('ion-pie-graph').addClass('ion-checkmark-circled');
-        })
+        })*/
+        var ww= $(window).width();
+        var hh=$(window).height();
+        $('#modal_panel').parent().css("margin-left",ww*0.1);
+        $('#modal_panel').width(ww*0.8);
+        $('#modalChart').width(ww*0.8);
+        $('#modalChart').height(hh*0.7);
+        dztSearchTeil=teilId;
+        dztSearchMerkmal=merkmalId;
+        initMerkmalChart(teilId,merkmalId);
+        getKztDataXR(teilId,merkmalId);
     }
 </script>
 </body>

@@ -62,15 +62,15 @@
         // if($('#searchByWertCheckbox').prop('checked')){
         //     ifQbSerchWertCount=1
         // }
-        $('#merkmalDiv').load('<%=basePath%>baqb/initMerkmalQbPage',{teilId:teilId,startTime: startTime,endTime: endTime,ifFirstOpenMerkmal:"1"});
-        $('#plChartCarousel').carousel('next');
-        $('#qaChartCarousel').carousel('next');
-        $('#qaMerkmalChartDiv').load('<%=basePath%>baqb/initQaMerkmalPage',{teilId:teilId,startTime:startTime,endTime:endTime});
-        $('#mmDetailsTableDiv').empty();
+        $('#merkmalDiv').load('<%=basePath%>baqb/initMerkmalQbPage',{teilId:teilId,startTime: startTime,endTime: endTime});
+        // $('#plChartCarousel').carousel('next');
+        // $('#qaChartCarousel').carousel('next');
+        <%--$('#qaMerkmalChartDiv').load('<%=basePath%>baqb/initQaMerkmalPage',{teilId:teilId,startTime:startTime,endTime:endTime});--%>
+        // $('#mmDetailsTableDiv').empty();
 
         $('#qbTitle2').html("->"+process);
-        $('#mmTitle2').html("->"+process);
-        $('#qaTitle2').html("->"+process);
+        // $('#mmTitle2').html("->"+process);
+        // $('#qaTitle2').html("->"+process);
     }
 </script>
 </body>

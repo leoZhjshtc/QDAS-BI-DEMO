@@ -32,4 +32,6 @@ public interface IQualityBoardAdminLteService {
     Map getQbShowFormInfoService(TeilBean teilBean);
 
     Map getSetupInfoMap();
+    Map initTeilMerkmalDetailsService();
+    List getKztChartDataService(TeilBean teilBean);
 }

@@ -76,7 +76,7 @@
         $('#qaProcessChartDiv').load('<%=basePath%>baqb/initQaProcessPage',{teilNum:teilNum,teilName:teilName,teilK1003:teilK1003});
         $('#processChartDiv').empty();
         initProcessMmChart(teilNum,teilName,teilK1003);
-        $('#mmDetailsTableDiv').empty();
+        // $('#mmDetailsTableDiv').empty();
         $('#qbTitle1').html(teilNum+'/'+teilName+'/'+teilK1003);
         $('#mmTitle1').html(teilNum+'/'+teilName+'/'+teilK1003);
         $('#qaTitle1').html(teilNum+'/'+teilName+'/'+teilK1003);

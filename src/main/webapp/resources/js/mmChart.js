@@ -156,23 +156,34 @@ function initChartAdminlte(categories,data,divId){
             confine:true
         },
         dataZoom: [{
+            // type: 'slider',
+            // filterMode: 'weakFilter',
+            // showDataShadow: false,
+            // //top: 100,
+            // height: 10,
+            // bottom:10,
+            // borderColor: 'transparent',
+            // backgroundColor: '#e2e2e2',
+            // handleIcon: 'M10.7,11.9H9.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4h1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7v-1.2h6.6z M13.3,22H6.7v-1.2h6.6z M13.3,19.6H6.7v-1.2h6.6z', // jshint ignore:line
+            // handleSize: 20,
+            // handleStyle: {
+            //     shadowBlur: 6,
+            //     shadowOffsetX: 1,
+            //     shadowOffsetY: 2,
+            //     shadowColor: '#aaa'
+            // },
+            // labelFormatter: '',
+            // end:100
             type: 'slider',
-            filterMode: 'weakFilter',
-            showDataShadow: false,
-            //top: 100,
-            height: 10,
-            borderColor: 'transparent',
-            backgroundColor: '#e2e2e2',
-            handleIcon: 'M10.7,11.9H9.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4h1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7v-1.2h6.6z M13.3,22H6.7v-1.2h6.6z M13.3,19.6H6.7v-1.2h6.6z', // jshint ignore:line
-            handleSize: 20,
-            handleStyle: {
-                shadowBlur: 6,
-                shadowOffsetX: 1,
-                shadowOffsetY: 2,
-                shadowColor: '#aaa'
-            },
-            labelFormatter: '',
-            end:100
+            handleSize: 30,
+            show: true,
+            xAxisIndex: [0],
+            height: 20,
+            bottom:5,
+            labelFormatter: function (value) {
+                var date = new Date(value);
+                return date.format("MM-dd hh");
+            }
         }],
         /* grid: {
              left: '3%',
@@ -185,7 +196,7 @@ function initChartAdminlte(categories,data,divId){
             top:'1%',
             left: '5%',
             right: '3%',
-            bottom: '80px',
+            bottom: '50px',
             containLabel: false
         },
         xAxis: {
@@ -201,6 +212,16 @@ function initChartAdminlte(categories,data,divId){
             axisLine: {show: true},
             axisTick: {
                 show: true
+            },
+            axisLabel:{
+                formatter: function (value, index) {
+                    var date = new Date(value);
+                    return date.format("yyyy-MM-dd hh:mm:ss");
+                },
+                color:function (value, index) {
+                    return "#3C8DBC";
+                },
+                fontStyle:'oblique'
             }
 
 
@@ -211,7 +232,11 @@ function initChartAdminlte(categories,data,divId){
                 show: true
             },
             axisLabel:{
-                interval:0
+                interval:0,
+                color:function (value, index) {
+                    return "#3C8DBC";
+                },
+                fontStyle:'oblique'
             }
         },
         series: [{
@@ -252,37 +277,49 @@ function initChartSmall(categories,data,divId){
         dataZoom: [
             {
                 type: 'slider',
+                handleSize: 25,
                 show: true,
-                handleSize: 5,
-                height: 10,
-                top: 90
-            },
+                xAxisIndex: [0],
+                height: 15,
+                top: 85,
+                start: 87,
+                end: 100,
+                labelFormatter: function (value) {
+                    var date = new Date(value);
+                    return date.format("MM-dd hh");
+                }
+            }/*,
             {
                 type: 'inside'
-            }
+            }*/
         ],
         grid: {
             top:'1%',
             left: '1%',
             right: '3%',
-            bottom: '5px',
+            bottom: '35px',
             containLabel: false
         },
         xAxis: {
             type:'time',
             name:'时间',
-            /*max: function (value) {
-                return value.max+(value.max-value.min)*0.05;
-            },
-            //data: xValues,
             splitLine:{
                 show:false
             },
             axisLine: {show: true},
             axisTick: {
                 show: true
-            }*/
-            show:false
+            },
+            axisLabel:{
+                formatter: function (value, index) {
+                    var date = new Date(value);
+                    return date.format("yyyy-MM-dd hh:mm");
+                },
+                color:function (value, index) {
+                    return "#3C8DBC";
+                },
+                fontStyle:'oblique'
+            }
 
 
         },
@@ -322,13 +359,13 @@ function renderItemSmall(params, api) {
     var categoryIndex = api.value(0);
     var start = api.coord([api.value(1), categoryIndex]);
     var end = api.coord([api.value(2), categoryIndex]);
-    var height = api.size([0, 1])[1] * 0.7;
+    var height = api.size([0, 1])[1] * 0.6;
     // var height=35;
     var rectShape = echarts.graphic.clipRectByRect({
         x: start[0],
         y: start[1] - height / 2,
         //width: end[0] - start[0],
-        width:3,
+        width:5,
         height: height
     }, {
         x: params.coordSys.x,

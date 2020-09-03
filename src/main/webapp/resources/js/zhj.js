@@ -13,7 +13,28 @@ Date.prototype.format = function (fmt) {
         if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
-
+//最小值
+Array.prototype.minValue = function() {
+    var min = this[0];
+    var len = this.length;
+    for (var i = 1; i < len; i++){
+        if (this[i] < min){
+            min = this[i];
+        }
+    }
+    return min;
+}
+//最大值
+Array.prototype.maxValue = function() {
+    var max = this[0];
+    var len = this.length;
+    for (var i = 1; i < len; i++){
+        if (this[i] > max) {
+            max = this[i];
+        }
+    }
+    return max;
+}
 function initLoading(divname,loadingName) {
     $('#'+divname).loading({
         loadingWidth:120,

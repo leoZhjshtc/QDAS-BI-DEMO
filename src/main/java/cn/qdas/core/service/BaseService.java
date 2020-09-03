@@ -13,16 +13,20 @@ public class BaseService {
         if(!StringUtils.isBlank(meugw)&&StringUtils.isBlank(meogw)){
             if("0".equals(meugw)){
                 remap.put("meugw","0");
-            }else {
-                remap.put("meugw",Float.parseFloat(meugw)*percentage);
+            }else if(Float.parseFloat(meugw)>0){
+                remap.put("meugw",Float.parseFloat(meugw)+Float.parseFloat(meugw)*(1-percentage));
+            }else if (Float.parseFloat(meugw)<0){
+                remap.put("meugw",Float.parseFloat(meugw)-Float.parseFloat(meugw)*(1-percentage));
             }
             remap.put("meogw",null);
             return remap;
         }else if(StringUtils.isBlank(meugw)&&!StringUtils.isBlank(meogw)){
             if("0".equals(meogw)){
                 remap.put("meogw","0");
-            }else {
-                remap.put("meogw",Float.parseFloat(meogw)*percentage);
+            }else if(Float.parseFloat(meogw)>0){
+                remap.put("meogw",Float.parseFloat(meugw)-Float.parseFloat(meugw)*(1-percentage));
+            }else if(Float.parseFloat(meogw)<0){
+                remap.put("meogw",Float.parseFloat(meugw)+Float.parseFloat(meugw)*(1-percentage));
             }
             remap.put("meugw",null);
             return remap;

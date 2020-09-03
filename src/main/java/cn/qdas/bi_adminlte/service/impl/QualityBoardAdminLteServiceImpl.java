@@ -498,6 +498,9 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
     @Override
     public Map getQbShowFormInfoService(TeilBean teilBean) {
         Map setupInfoMap = getSetupInfo();
+        teilBean.setIfQbSerchWertCount(setupInfoMap.get("ifQbSerchWertCount").toString());
+        teilBean.setQbSerchWertCount(setupInfoMap.get("qbSerchWertCount").toString());
+
         Page page = PageHelper.startPage(teilBean.getPage(), 1, true);
         List<Map> list = qualityBoardAdminLteMapper.getQbShowFormInfoMapper(teilBean);
         List<Map> chartList = new ArrayList();
@@ -505,7 +508,11 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
         if (list.size() > 0) {
             teilBean.setTeilId(list.get(0).get("WVTEIL").toString());
             teilBean.setMerkmalId(list.get(0).get("WVMERKMAL").toString());
-            chartList = qualityBoardAdminLteMapper.getMerkmalChartDataMapper(teilBean);
+            if (null == teilBean.getIfQbSerchWertCount() || "0".equals(teilBean.getIfQbSerchWertCount())) {
+                chartList = qualityBoardAdminLteMapper.getMerkmalChartDataMapper(teilBean);
+            } else {
+                chartList = qualityBoardAdminLteMapper.getMerkmalChartDataMapperByCount(teilBean);
+            }
             if ("1".equals(setupInfoMap.get("ifSetupTolerance"))) {
                 for (int j = 0; j < chartList.size(); j++) {
                     Map toMap = toleranceChange(chartList.get(j).get("MEUGW") == null ? null : chartList.get(j).get("MEUGW").toString(), chartList.get(j).get("MEOGW") == null ? null : chartList.get(j).get("MEOGW").toString(), Float.parseFloat(setupInfoMap.get("tolerance").toString()));
@@ -523,6 +530,16 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
     @Override
     public Map getSetupInfoMap() {
         return getSetupInfo();
+    }
+
+    @Override
+    public Map initTeilMerkmalDetailsService() {
+        return qualityBoardAdminLteMapper.initTeilMerkmalDetailsMapper();
+    }
+
+    @Override
+    public List getKztChartDataService(TeilBean teilBean) {
+        return qualityBoardAdminLteMapper.getKztChartDataMapper(teilBean);
     }
 
     public String getRecent24Time() {

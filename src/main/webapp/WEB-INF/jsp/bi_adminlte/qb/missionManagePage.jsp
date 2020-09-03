@@ -26,12 +26,12 @@
             </div>
             <div id="processChartDiv" style="margin-top: 10px"></div>
         </div>
-        <div class="item">
-            <div class="input-group col-md-3 col-xs-12">
-                <input type="text" class="form-control pull-right" id="dztSearchTime">
-            </div>
-            <div id="merkmalChartDiv"></div>
-        </div>
+<%--        <div class="item">--%>
+<%--            <div class="input-group col-md-3 col-xs-12">--%>
+<%--                <input type="text" class="form-control pull-right" id="dztSearchTime">--%>
+<%--            </div>--%>
+<%--            <div id="merkmalChartDiv"></div>--%>
+<%--        </div>--%>
     </div>
 </div>
 <script type="text/javascript"
@@ -58,18 +58,6 @@
                     manyMmchartArr[i].mmchart.resize();
                 }
             }
-        });
-        $('#dztSearchTime').daterangepicker({
-            timePicker: true,
-            timePicker24Hour: true,
-            timePickerIncrement: 10,
-            startDate: startTime,
-            endDate: endTime,
-            locale: {format: 'YYYY-MM-DD HH:mm:ss'},
-        }, function (start, end, label) {
-            var startTime_search = start.format('YYYY-MM-DD HH:mm:ss');
-            var endTime_search = end.format('YYYY-MM-DD HH:mm:ss');
-            initMerkmalChart_search(dztSearchTeil,dztSearchMerkmal,startTime_search,endTime_search)
         });
     })
     function onePlMmCharts(ele) {
@@ -244,147 +232,7 @@
         })
     }
 
-    function initMerkmalChart(teilId, merkmalId) {
-        var ifQbSerchWertCount=0
-        if($('#searchByWertCheckbox').prop('checked')){
-            ifQbSerchWertCount=1
-        }
-        var pdata={
-            teilId: teilId,
-            merkmalId: merkmalId,
-            startTime:startTime,
-            endTime:endTime,qbSerchWertCount:$('#searchByWertCount').val(),
-            ifQbSerchWertCount:ifQbSerchWertCount
-        }
-        $.ajax({
-            type: 'post',
-            url: '<%=basePath%>baqb/getMerkmalChartData',
-            data: pdata,
-            success: function (data) {
-                if (data.length > 0) {
-                    $('#merkmalChartDiv').height('500px');
-                    if (data[0].MEMERKART != 1) {
-                        var upLimit;
-                        var downLimit;
-                        var newupLimit;
-                        var newdownLimit;
-                        var chartTitle;
-                        var mdata;
-                        var xValue = [];
-                        var yValue = [];
-                        var tooltipTime = [];
-                        var tooltipPRVORNAME = [];
-                        var tooltipPMBEZ = [];
-                        if (data.length > 0) {
-                            upLimit = data[0].MEOGW;
-                            downLimit = data[0].MEUGW;
-                            newupLimit = data[0].NEWMEOGW;
-                            newdownLimit = data[0].NEWMEUGW;
-                            chartTitle = data[0].MEMERKBEZ;
-                            mdata = data[0].MENENNMAS;
-                            for (var i = 0; i < data.length; i++) {
-                                tooltipTime.push(data[i].WVDATZEIT);
-                                tooltipPRVORNAME.push(data[i].PRVORNAME == undefined ? '' : data[i].PRVORNAME);
-                                tooltipPMBEZ.push('');
-                                xValue.push(data[i].WVDATZEIT);
-                                yValue.push(data[i].WVWERT)
-                            }
-                        }
-                        qbLinechart = initQbLineChartWithNewLimit('merkmalChartDiv', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
-                    } else {
-                        var xData = ['合格', '不合格'];
-                        var yData = [];
-                        var pieArr = [];
-                        var okCount = 0;
-                        var nokCount = 0;
-                        var title;
-                        if (data.length > 0) {
-                            title = data[0].MEMERKBEZ
-                            for (var i = 0; i < data.length; i++) {
-                                if (data[i].WVWERT.toString().indexOf('.') !== 0 & parseFloat(data[i].WVWERT.toString().substring(data[i].WVWERT.toString().indexOf(".") - 1)) > 0) {
-                                    nokCount += 1;
-                                } else {
-                                    okCount += 1;
-                                }
-                            }
-                        }
-                        yData = [okCount, nokCount];
-                        pieArr = [{name: '合格', value: okCount}, {name: '不合格', value: nokCount}];
-                        qbLinechart = initBarAndPie('merkmalChartDiv', xData, yData, pieArr, title);
 
-                    }
-                }
-            }
-        })
-    }
-    function initMerkmalChart_search(teilId, merkmalId,startTime_search,endTime_search) {
-        var pdata={
-            teilId: teilId,
-            merkmalId: merkmalId,
-            startTime:startTime_search,
-            endTime:endTime_search
-        }
-        $.ajax({
-            type: 'post',
-            url: '<%=basePath%>baqb/getMerkmalChartDataByTime',
-            data: pdata,
-            success: function (data) {
-                if (data.length > 0) {
-                    $('#merkmalChartDiv').height('500px');
-                    if (data[0].MEMERKART != 1) {
-                        var upLimit;
-                        var downLimit;
-                        var newupLimit;
-                        var newdownLimit;
-                        var chartTitle;
-                        var mdata;
-                        var xValue = [];
-                        var yValue = [];
-                        var tooltipTime = [];
-                        var tooltipPRVORNAME = [];
-                        var tooltipPMBEZ = [];
-                        if (data.length > 0) {
-                            upLimit = data[0].MEOGW;
-                            downLimit = data[0].MEUGW;
-                            newupLimit = data[0].NEWMEOGW;
-                            newdownLimit = data[0].NEWMEUGW;
-                            chartTitle = data[0].MEMERKBEZ;
-                            mdata = data[0].MENENNMAS;
-                            for (var i = 0; i < data.length; i++) {
-                                tooltipTime.push(data[i].WVDATZEIT);
-                                tooltipPRVORNAME.push(data[i].PRVORNAME == undefined ? '' : data[i].PRVORNAME);
-                                tooltipPMBEZ.push('');
-                                xValue.push(data[i].WVDATZEIT);
-                                yValue.push(data[i].WVWERT)
-                            }
-                        }
-                        qbLinechart = initQbLineChartWithNewLimit('merkmalChartDiv', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
-                    } else {
-                        var xData = ['合格', '不合格'];
-                        var yData = [];
-                        var pieArr = [];
-                        var okCount = 0;
-                        var nokCount = 0;
-                        var title;
-                        if (data.length > 0) {
-                            title = data[0].MEMERKBEZ
-                            for (var i = 0; i < data.length; i++) {
-                                if (data[i].WVWERT.toString().indexOf('.') !== 0 & parseFloat(data[i].WVWERT.toString().substring(data[i].WVWERT.toString().indexOf(".") - 1)) > 0) {
-                                    nokCount += 1;
-                                } else {
-                                    okCount += 1;
-                                }
-                            }
-                        }
-                        yData = [okCount, nokCount];
-                        pieArr = [{name: '合格', value: okCount}, {name: '不合格', value: nokCount}];
-                        qbLinechart = initBarAndPie('merkmalChartDiv', xData, yData, pieArr, title);
-
-                    }
-                }
-            }
-        })
-    }
     function initManyPlmmChart() {
         $.ajax({
             type: 'post',

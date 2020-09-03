@@ -14,8 +14,8 @@
         </div>
         <div class="item" id="qaProcessChartDiv">
         </div>
-        <div class="item" id="qaMerkmalChartDiv">
-        </div>
+<%--        <div class="item" id="qaMerkmalChartDiv">--%>
+<%--        </div>--%>
     </div>
 </div>
 <script type="text/javascript">

@@ -30,13 +30,13 @@
         }
     </style>
 </head>
-<body class="hold-transition skin-black-light layout-top-nav fixed" data-spy="scroll" style="position: relative;">
+<body class="hold-transition skin-black-light layout-top-nav fixed" <%--data-spy="scroll" style="position: relative;"--%>>
 <div class="wrapper">
     <header class="main-header">
         <nav id="nav" class="navbar navbar-static-top" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a href="http://www.q-das.cn/" class="navbar-img"><span class="logo-md"><img
+                    <a href="<%=basePath%>baqb/initFrameworkPage" class="navbar-img"><span class="logo-md"><img
                             src="<%=basePath%>resources/images/qdas-logo.png" style="height: 50px"></span></a>
 
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
@@ -50,9 +50,9 @@
                     <ul class="nav navbar-nav">
                         <li><a href="#">产线看板</a></li>
                         <li><a href="#maodian1">任务图表</a></li>
-                        <li><a href="#maodian2">质量分析</a></li>
                         <li><a href="#maodian3">零件参数</a></li>
-                        <li><a href="#maodian4" onclick="openQbShow();">轮播看板</a></li>
+                        <li><a href="#maodian2">月度分析</a></li>
+                        <li><a href="#maodian4" onclick="openQbShow();">统计轮播</a></li>
                         <li>
                             <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
                         </li>
@@ -138,13 +138,30 @@
                         </div>
                     </div>
                 </div>
+                <span id="maodian3" style="display:block;height:50px;margin-top:-50px;"></span>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="box box-solid box-warning" id="mmMerkmalBox">
+                            <div class="box-header">
+                                <h3 class="box-title">零件参数&nbsp;&nbsp;<small id="mmDetailsTitle"></small></h3>
+
+                                <div class="box-tools">
+                                    <button type="button" class="btn btn-warning btn-md" data-widget="collapse"><i
+                                            class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="mmDetailsTableDiv" class="box-body"></div>
+                        </div>
+                    </div>
+                </div>
                 <span id="maodian2" style="display:block;height:50px;margin-top:-50px;"></span>
                 <div class="row">
                     <div class="col-md-12">
                         <div id="qachartbox" class="box box-solid box-info">
                             <div class="box-header">
                                 <i class="fa fa-bar-chart-o"></i>
-                                <h3 class="box-title">质量分析 &nbsp;&nbsp;<small id="qaTitle1"></small><small
+                                <h3 class="box-title">月度分析 &nbsp;&nbsp;<small id="qaTitle1"></small><small
                                         id="qaTitle2"></small></h3>
                                 <div class="box-tools pull-right">
                                     <button type="button" class="btn bg-teal btn-md refresh-btn"
@@ -164,30 +181,13 @@
                         </div>
                     </div>
                 </div>
-                <span id="maodian3" style="display:block;height:50px;margin-top:-50px;"></span>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="box box-solid box-warning" id="mmMerkmalBox">
-                            <div class="box-header">
-                                <h3 class="box-title">零件参数&nbsp;&nbsp;<small id="mmDetailsTitle"></small></h3>
-
-                                <div class="box-tools">
-                                    <button type="button" class="btn btn-warning btn-md" data-widget="collapse"><i
-                                            class="fa fa-minus"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div id="mmDetailsTableDiv" class="box-body"></div>
-                        </div>
-                    </div>
-                </div>
                 <span id="maodian4" style="display:block;height:50px;margin-top:-50px;"></span>
                 <div class="row">
                     <div class="col-md-12">
                         <div id="qbShowBox" class="box box-solid box-success collapsed-box">
                             <div class="box-header">
                                 <i class="fa fa-bar-chart-o"></i>
-                                <h3 class="box-title">轮播看板</h3>
+                                <h3 class="box-title">统计轮播</h3>
                                 <div class="box-tools pull-right">
                                     <select class="form-control" style="width: 100px;float: left;height: 100%"
                                             id="intervalTime" onchange="lbTimeChange();">
@@ -294,6 +294,49 @@
     immediately after the control sidebar -->
     <div class="control-sidebar-bg"></div>
 </div>
+<div class="modal fade" id="dzt-modal-default">
+    <div class="modal-dialog">
+        <div class="modal-content" id="modal_panel">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">最近测量</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#dztChartTab" data-toggle="tab">单值图</a></li>
+                        <li><a href="#kztChartTabXR" data-toggle="tab">X-R控制图</a></li>
+                        <li><a href="#kztChartTabXS" data-toggle="tab">X-S控制图</a></li>
+                        <li><a href="#kztChartTabIMR" data-toggle="tab">I-MR控制图</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="dztChartTab">
+                            <div class="input-group col-md-3 col-xs-12">
+                                <input type="text" class="form-control pull-right" id="dztSearchTime">
+                            </div>
+                            <div id="modalChart"></div>
+                        </div>
+                        <div class="tab-pane" id="kztChartTabXR">
+                            <div id="kztChartDivXR"></div>
+                        </div>
+                        <div class="tab-pane" id="kztChartTabXS">
+                            <div id="kztChartDivXS"></div>
+                        </div>
+                        <div class="tab-pane" id="kztChartTabIMR">
+                            <div id="kztChartDivIMR"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+<%--            <div class="modal-footer">--%>
+<%--                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>--%>
+<%--                <button type="button" class="btn btn-primary">Save changes</button>--%>
+<%--            </div>--%>
+        </div>
+    </div>
+</div>
 <script type="text/javascript"
         src="<%=basePath %>resources/AdminLTE-2.4.18/bower_components/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript"
@@ -352,6 +395,19 @@
             onLoadDone: function (response) {
             }
         });
+        $("#mmMerkmalBox").boxRefresh({
+            source: '<%=basePath%>baqb/initMissionManageDetails',
+            // params: {startTime:startTime,endTime:endTime},
+            content: '.box-body',
+            //是否自动加载内容
+            loadInContent: true,
+            overlayTemplate: '<div class="overlay"><div class="fa fa-refresh fa-spin"></div></div>',
+            onLoadStart: function () {
+            },
+            onLoadDone: function (response) {
+                initDetailsTable();
+            }
+        });
         $("#qachartbox").boxRefresh({
             source: '<%=basePath%>baqb/initQualityAnalysePage',
             // params: {startTime:startTime,endTime:endTime},
@@ -392,6 +448,18 @@
             $('#qbchartboxRefreshHidden').click();
             $('#qachartboxRefreshHidden').click();
         });
+        $('#dztSearchTime').daterangepicker({
+            timePicker: true,
+            timePicker24Hour: true,
+            timePickerIncrement: 10,
+            startDate: startTime,
+            endDate: endTime,
+            locale: {format: 'YYYY-MM-DD HH:mm:ss'},
+        }, function (start, end, label) {
+            var startTime_search = start.format('YYYY-MM-DD HH:mm:ss');
+            var endTime_search = end.format('YYYY-MM-DD HH:mm:ss');
+            initMerkmalChart_search(dztSearchTeil,dztSearchMerkmal,startTime_search,endTime_search)
+        });
         initSetupTolerance();
         // runRealTime = setInterval("startRealTime()", parseInt($('#intervalRealTime').val()) * 1000);
         // runRealTime=setInterval(startRealTime(),10*1000);
@@ -407,9 +475,16 @@
     })
 
     function plChartCarouselPrev() {
-        $('#plChartCarousel').carousel('prev');
-        $('#qaChartCarousel').carousel('prev');
-        if ($('#plCarousel').find('.active').children()[0].id == 'merkmalDiv') {
+        if(qbCarouselIndex!==2){
+            $('#plChartCarousel').carousel('prev');
+            $('#qaChartCarousel').carousel('prev');
+        }
+        if(qbCarouselIndex === 1){
+            $('#qbTitle1').html('');
+            $('#mmTitle1').html('');
+            $('#qaTitle2').html('');
+        }
+      /*  if ($('#plCarousel').find('.active').children()[0].id == 'merkmalDiv') {
             $('#qbTitle2').html('');
             $('#mmTitle2').html('');
             $('#qaTitle2').html('');
@@ -417,7 +492,7 @@
             $('#qbTitle1').html('');
             $('#mmTitle1').html('');
             $('#qaTitle1').html('');
-        }
+        }*/
         if(manyMmchartArr!==undefined){
             manyMmchartArr=[];
         }
@@ -641,6 +716,192 @@
         if(!re.test(num)){
             isNaN(parseInt(num))?ele.value=0:ele.value=parseInt(num);
         }
+    }
+    function initMerkmalChart(teilId, merkmalId) {
+        var pdata={
+            teilId: teilId,
+            merkmalId: merkmalId,
+            startTime:startTime,
+            endTime:endTime
+        }
+        $.ajax({
+            type: 'post',
+            url: '<%=basePath%>baqb/getMerkmalChartData',
+            data: pdata,
+            success: function (data) {
+                if (data.length > 0) {
+                    $('#merkmalChartDiv').height('500px');
+                    if (data[0].MEMERKART != 1) {
+                        var upLimit;
+                        var downLimit;
+                        var newupLimit;
+                        var newdownLimit;
+                        var chartTitle;
+                        var mdata;
+                        var xValue = [];
+                        var yValue = [];
+                        var tooltipTime = [];
+                        var tooltipPRVORNAME = [];
+                        var tooltipPMBEZ = [];
+                        if (data.length > 0) {
+                            upLimit = data[0].MEOGW;
+                            downLimit = data[0].MEUGW;
+                            newupLimit = data[0].NEWMEOGW;
+                            newdownLimit = data[0].NEWMEUGW;
+                            chartTitle = data[0].MEMERKBEZ;
+                            mdata = data[0].MENENNMAS;
+                            for (var i = 0; i < data.length; i++) {
+                                tooltipTime.push(data[i].WVDATZEIT);
+                                tooltipPRVORNAME.push(data[i].PRVORNAME == undefined ? '' : data[i].PRVORNAME);
+                                tooltipPMBEZ.push('');
+                                xValue.push(data[i].WVDATZEIT);
+                                yValue.push(data[i].WVWERT)
+                            }
+                        }
+                        // qbLinechart = initQbLineChartWithNewLimit('merkmalChartDiv', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
+                        qbLinechart = initQbLineChartWithNewLimit('modalChart', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
+                    } else {
+                        var xData = ['合格', '不合格'];
+                        var yData = [];
+                        var pieArr = [];
+                        var okCount = 0;
+                        var nokCount = 0;
+                        var title;
+                        if (data.length > 0) {
+                            title = data[0].MEMERKBEZ
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i].WVWERT.toString().indexOf('.') !== 0 & parseFloat(data[i].WVWERT.toString().substring(data[i].WVWERT.toString().indexOf(".") - 1)) > 0) {
+                                    nokCount += 1;
+                                } else {
+                                    okCount += 1;
+                                }
+                            }
+                        }
+                        yData = [okCount, nokCount];
+                        pieArr = [{name: '合格', value: okCount}, {name: '不合格', value: nokCount}];
+                        // qbLinechart = initBarAndPie('merkmalChartDiv', xData, yData, pieArr, title);
+                        qbLinechart = initBarAndPie('modalChart', xData, yData, pieArr, title);
+                    }
+                }
+            }
+        })
+    }
+    function initMerkmalChart_search(teilId, merkmalId,startTime_search,endTime_search) {
+        var pdata={
+            teilId: teilId,
+            merkmalId: merkmalId,
+            startTime:startTime_search,
+            endTime:endTime_search
+        }
+        $.ajax({
+            type: 'post',
+            url: '<%=basePath%>baqb/getMerkmalChartDataByTime',
+            data: pdata,
+            success: function (data) {
+                if (data.length > 0) {
+                    $('#merkmalChartDiv').height('500px');
+                    if (data[0].MEMERKART != 1) {
+                        var upLimit;
+                        var downLimit;
+                        var newupLimit;
+                        var newdownLimit;
+                        var chartTitle;
+                        var mdata;
+                        var xValue = [];
+                        var yValue = [];
+                        var tooltipTime = [];
+                        var tooltipPRVORNAME = [];
+                        var tooltipPMBEZ = [];
+                        if (data.length > 0) {
+                            upLimit = data[0].MEOGW;
+                            downLimit = data[0].MEUGW;
+                            newupLimit = data[0].NEWMEOGW;
+                            newdownLimit = data[0].NEWMEUGW;
+                            chartTitle = data[0].MEMERKBEZ;
+                            mdata = data[0].MENENNMAS;
+                            for (var i = 0; i < data.length; i++) {
+                                tooltipTime.push(data[i].WVDATZEIT);
+                                tooltipPRVORNAME.push(data[i].PRVORNAME == undefined ? '' : data[i].PRVORNAME);
+                                tooltipPMBEZ.push('');
+                                xValue.push(data[i].WVDATZEIT);
+                                yValue.push(data[i].WVWERT)
+                            }
+                        }
+                        // qbLinechart = initQbLineChartWithNewLimit('merkmalChartDiv', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
+                        qbLinechart = initQbLineChartWithNewLimit('modalChart', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
+                    } else {
+                        var xData = ['合格', '不合格'];
+                        var yData = [];
+                        var pieArr = [];
+                        var okCount = 0;
+                        var nokCount = 0;
+                        var title;
+                        if (data.length > 0) {
+                            title = data[0].MEMERKBEZ
+                            for (var i = 0; i < data.length; i++) {
+                                if (data[i].WVWERT.toString().indexOf('.') !== 0 & parseFloat(data[i].WVWERT.toString().substring(data[i].WVWERT.toString().indexOf(".") - 1)) > 0) {
+                                    nokCount += 1;
+                                } else {
+                                    okCount += 1;
+                                }
+                            }
+                        }
+                        yData = [okCount, nokCount];
+                        pieArr = [{name: '合格', value: okCount}, {name: '不合格', value: nokCount}];
+                        // qbLinechart = initBarAndPie('merkmalChartDiv', xData, yData, pieArr, title);
+                        qbLinechart = initBarAndPie('modalChart', xData, yData, pieArr, title);
+                    }
+                }
+            }
+        })
+    }
+    function getKztDataXR(teilId,merkmalId) {
+        var ww= $(window).width();
+        var hh=$(window).height();
+        $('#kztChartDivXR').width(ww*0.8);
+        $('#kztChartDivXR').height(hh*0.7);
+        var groupCount=5;
+        $.ajax({
+            type: 'post',
+            url: '<%=basePath%>baqb/getKztChartData',
+            data: {
+                teilId: teilId,
+                merkmalId: merkmalId
+            },
+            success: function (data) {
+                var dataList = data[0].wvList;
+                // var dataList=new Array();
+                // for(var i=1;i<126;i++){
+                //     dataList.push(i);
+                // }
+
+                var groupArr=new Array();//分组完的List
+                var smallArr=new Array();//List中的组
+                for(var i=0;i<dataList.length;i++){
+                    smallArr.push(dataList[i].WVWERT);
+                    if(smallArr.length==groupCount){
+                        groupArr.push(smallArr);
+                        smallArr=[];
+                    }
+                }
+                var averageArr=new Array();
+                var rangeArr=new Array();
+                var xValue = new Array();
+                for(var i=0;i<groupArr.length;i++){
+                    var garr=new Array();
+                    garr=groupArr[i];
+                    var gtotal=0;
+                    for(var j=0;j<garr.length;j++){
+                        gtotal +=parseFloat(garr[j]);
+                    }
+                    averageArr.push(gtotal/garr.length);
+                    rangeArr.push(garr.maxValue()-garr.minValue());
+                    xValue.push(i+1);
+                }
+
+                initKztXR("kztChartDivXR",xValue,averageArr,rangeArr,groupArr);
+            }
+        })
     }
 </script>
 </body>

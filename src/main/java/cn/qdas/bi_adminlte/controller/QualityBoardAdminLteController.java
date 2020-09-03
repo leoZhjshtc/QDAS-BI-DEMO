@@ -1,6 +1,5 @@
 package cn.qdas.bi_adminlte.controller;
 
-import cn.qdas.bi.controller.Test;
 import cn.qdas.bi_adminlte.bean.TeilBean;
 import cn.qdas.bi_adminlte.service.IQualityBoardAdminLteService;
 import cn.qdas.core.V11Webservice.IQdas_Web_Service;
@@ -62,11 +61,10 @@ public class QualityBoardAdminLteController {
         return "bi_adminlte/qb/processPage";
     }
     @RequestMapping("initMerkmalQbPage")
-    public String initMerkmalQbPage(TeilBean teilBean, Model model,String ifFirstOpenMerkmal){
+    public String initMerkmalQbPage(TeilBean teilBean, Model model){
         List list=qualityBoardAdminLteService.getMerkmalDataService(teilBean);
         model.addAttribute("merkmalList",list);
         model.addAttribute("qbTeilIdValue",teilBean.getTeilId());
-        model.addAttribute("ifFirstOpenMerkmal",ifFirstOpenMerkmal);
         return "bi_adminlte/qb/merkmalPage";
     }
     @RequestMapping("getPlMissionManageChartData")
@@ -93,6 +91,17 @@ public class QualityBoardAdminLteController {
     public String getMissionManageDetails(TeilBean teilBean,Model model){
         List list=qualityBoardAdminLteService.getMissionManageDetailsService(teilBean);
         model.addAttribute("mmList",list);
+        return "bi_adminlte/qb/mmDetailsPage";
+    }
+    @RequestMapping("initMissionManageDetails")
+    public String initMissionManageDetails(Model model){
+        TeilBean teilBean = new TeilBean();
+        Map map=qualityBoardAdminLteService.initTeilMerkmalDetailsService();
+        teilBean.setTeilId(map.get("WVTEIL").toString());
+        teilBean.setWvwertnr(map.get("WVWERTNR").toString());
+        List list=qualityBoardAdminLteService.getMissionManageDetailsService(teilBean);
+        model.addAttribute("mmList",list);
+        model.addAttribute("mmMap",map);
         return "bi_adminlte/qb/mmDetailsPage";
     }
     @RequestMapping("initQaProductLinePage")
@@ -146,7 +155,11 @@ public class QualityBoardAdminLteController {
         model.addAttribute("qaMerkmalList",list);
         return "bi_adminlte/qb/qaMerkmalPage";
     }
-
+    @RequestMapping("getKztChartData")
+    @ResponseBody
+    public List  getKztChartData(TeilBean teilBean){
+        return qualityBoardAdminLteService.getKztChartDataService(teilBean);
+    }
     @RequestMapping("getCpkData")
     @ResponseBody
     public Map getCpkData(TeilBean teilBean){
@@ -244,7 +257,7 @@ public class QualityBoardAdminLteController {
         Map map=new HashMap<String, Object>();
         Properties prop = new Properties();
         try {
-            prop.load(Test.class.getResourceAsStream("/jdbc.properties"));
+            prop.load(QualityBoardAdminLteController.class.getResourceAsStream("/jdbc.properties"));
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

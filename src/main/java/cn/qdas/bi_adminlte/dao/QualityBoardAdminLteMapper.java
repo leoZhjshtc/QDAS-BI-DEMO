@@ -4,6 +4,7 @@ package cn.qdas.bi_adminlte.dao;
 import cn.qdas.bi_adminlte.bean.TeilBean;
 
 import java.util.List;
+import java.util.Map;
 
 public interface QualityBoardAdminLteMapper {
     List getProductLineDataMapper(TeilBean teilBean);
@@ -27,4 +28,6 @@ public interface QualityBoardAdminLteMapper {
     List getQaMerkmalDataMapper(TeilBean teilBean);
     List getRecent125NumMapper(TeilBean teilBean);
     List getQbShowFormInfoMapper(TeilBean teilBean);
+    Map initTeilMerkmalDetailsMapper();
+    List getKztChartDataMapper(TeilBean teilBean);
 }

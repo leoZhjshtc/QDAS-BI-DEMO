@@ -279,6 +279,11 @@
 		WHERE t.TETEIL=#{teilId}
 		AND w.WVWERTNR=#{wvwertnr}
     </select>
+    <select id="initTeilMerkmalDetailsMapper" parameterType="cn.qdas.bi_adminlte.bean.TeilBean" resultType="map">
+        SELECT TOP 1 w.WVTEIL,w.WVWERTNR,ISNULL(t.TETEILNR, '') AS TETEILNR,ISNULL(t.TEBEZEICH, '') AS TEBEZEICH,ISNULL(t.TEKURZBEZEICH, '') AS TEKURZBEZEICH FROM WERTEVAR w
+        LEFT JOIN TEIL t ON t.TETEIL = w.WVTEIL
+        ORDER BY WVDATZEIT DESC
+    </select>
     <!--qa-->
     <select id="getProductLineRecent24HoursDataMapper" parameterType="cn.qdas.bi_adminlte.bean.TeilBean"
             resultMap="productLineRecent24HoursMap">
@@ -476,4 +481,29 @@
         </if>
         GROUP BY w.WVTEIL,w.WVMERKMAL
     </select>
+    <select id="getKztChartDataMapper" parameterType="cn.qdas.bi_adminlte.bean.TeilBean" resultMap="kztChartMap">
+       SELECT * FROM (
+        select TOP 125 w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS
+        WVDATZEIT,m.MEMERKART,m.MEMERKBEZ,t.TEKURZBEZEICH,t.TEBEZEICH,t.TETEILNR,ISNULL(t.TEAUFTRAGSTR,'') AS TEAUFTRAGSTR
+        FROM WERTEVAR w
+        LEFT JOIN TEIL t ON t.TETEIL = w.WVTEIL
+        LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+        where WVMERKMAL=#{merkmalId} and WVTEIL=#{teilId}
+        ORDER BY w.WVDATZEIT desc)r ORDER BY r.WVDATZEIT
+    </select>
+    <resultMap id="kztChartMap" type="java.util.Map">
+        <result property="WVTEIL" column="WVTEIL"/>
+        <result property="WVMERKMAL" column="WVMERKMAL"/>
+        <result property="MEMERKART" column="MEMERKART"/>
+        <result property="MEMERKBEZ" column="MEMERKBEZ"/>
+        <result property="TEKURZBEZEICH" column="TEKURZBEZEICH"/>
+        <result property="TEBEZEICH" column="TEBEZEICH"/>
+        <result property="TETEILNR" column="TETEILNR"/>
+        <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
+        <collection property="wvList" javaType="java.util.List" ofType="java.util.Map">
+            <result property="WVWERTNR" column="WVWERTNR"/>
+            <result property="WVWERT" column="WVWERT"/>
+            <result property="WVDATZEIT" column="WVDATZEIT"/>
+        </collection>
+    </resultMap>
 </mapper>
