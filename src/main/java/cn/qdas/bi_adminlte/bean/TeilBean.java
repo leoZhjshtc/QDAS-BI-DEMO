@@ -19,6 +19,43 @@ public class TeilBean extends BaseBean {
     private String tolerance;
     private String ifSetupDecimal;
     private String decimal;
+    private String wvwertCount;
+
+    private String defaultSearchType;
+    private String defaultSearchTime;
+    private String defaultSearchCount;
+
+    public String getDefaultSearchType() {
+        return defaultSearchType;
+    }
+
+    public void setDefaultSearchType(String defaultSearchType) {
+        this.defaultSearchType = defaultSearchType;
+    }
+
+    public String getDefaultSearchTime() {
+        return defaultSearchTime;
+    }
+
+    public void setDefaultSearchTime(String defaultSearchTime) {
+        this.defaultSearchTime = defaultSearchTime;
+    }
+
+    public String getDefaultSearchCount() {
+        return defaultSearchCount;
+    }
+
+    public void setDefaultSearchCount(String defaultSearchCount) {
+        this.defaultSearchCount = defaultSearchCount;
+    }
+
+    public String getWvwertCount() {
+        return wvwertCount;
+    }
+
+    public void setWvwertCount(String wvwertCount) {
+        this.wvwertCount = wvwertCount;
+    }
 
     public String getIfSetupTolerance() {
         return ifSetupTolerance;

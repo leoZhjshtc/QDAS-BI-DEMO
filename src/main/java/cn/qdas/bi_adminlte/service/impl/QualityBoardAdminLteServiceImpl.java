@@ -539,7 +539,20 @@ public class QualityBoardAdminLteServiceImpl extends BaseService implements IQua
 
     @Override
     public List getKztChartDataService(TeilBean teilBean) {
-        return qualityBoardAdminLteMapper.getKztChartDataMapper(teilBean);
+        Map setupInfoMap = getSetupInfo();
+        List<Map> list=qualityBoardAdminLteMapper.getKztChartDataMapper(teilBean);
+        List<Map> wvList= (List<Map>) list.get(0).get("wvList");
+        if ("1".equals(setupInfoMap.get("ifSetupDecimal"))) {
+            for (int i = 0; i < wvList.size(); i++) {
+                String wert = wvList.get(i).get("WVWERT").toString();
+                if (wert.indexOf(".") != -1 && wert.substring(wert.indexOf(".")).length() > Integer.parseInt(setupInfoMap.get("decimal").toString())) {
+                    BigDecimal bigDecimal = new BigDecimal(wert);
+                    bigDecimal = bigDecimal.setScale(Integer.parseInt(setupInfoMap.get("decimal").toString()), BigDecimal.ROUND_HALF_UP);
+                    wvList.get(i).put("WVWERT", bigDecimal);
+                }
+            }
+        }
+        return list;
     }
 
     public String getRecent24Time() {

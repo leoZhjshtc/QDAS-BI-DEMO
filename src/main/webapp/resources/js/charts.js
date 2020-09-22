@@ -1394,8 +1394,73 @@ function initQaLineChart(divId, xValues, yValues, upLimitData, downLimitData, mD
     return lineChart;
 }
 
-function initKztXR(divId, xValue,yValue1,yValue2,groupArr) {
+function initKztXR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
     var kztChart = echarts.init(document.getElementById(divId), 'mytheme');
+    var makeLineDataX = new Array();
+    var makeLineDataR = new Array();
+    if (meogw != null & meogw !== '' & meogw !== undefined) {
+        var upLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#f00",
+            },
+            yAxis: parseFloat(meogw),
+            name: meogw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '上公差限'
+            }
+        };
+        makeLineDataX.push(upLimitDataLine);
+    }
+    if (meugw != null & meugw !== '' & meugw !== undefined) {
+        var downLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#f00",
+            },
+            yAxis: parseFloat(meugw),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '下公差限'
+            }
+        };
+        makeLineDataX.push(downLimitDataLine);
+    }
+
+    var averageLineX = {
+        type: 'average',
+        lineStyle: {
+            color: "#00a9e0",
+        },
+        name: '平均值',
+        label: {
+            position: "end",
+            show: true,
+            formatter: '{c}' + 	"  X-BAR",
+            color: '#00a9e0'
+        }
+    };
+    makeLineDataX.push(averageLineX);
+    var averageLineR = {
+        type: 'average',
+        lineStyle: {
+            color: "#00a9e0",
+        },
+        name: '平均值',
+        label: {
+            position: "end",
+            show: true,
+            formatter: '{c}' + 	"  R-BAR",
+            color: '#00a9e0'
+        }
+    };
+    makeLineDataR.push(averageLineR);
     option = {
         tooltip: {
             trigger: 'axis',
@@ -1404,12 +1469,12 @@ function initKztXR(divId, xValue,yValue1,yValue2,groupArr) {
             },
             formatter: function (params) {
                 var index=params[0].dataIndex;
-                var garr=groupArr[index];
+                var tarr=tooltipArr[index];
                 var showstr='';
-                for(var i=0;i<garr.length;i++){
-                    showstr +='<p>'+garr[i]+'</p>';
+                for(var i=0;i<tarr.length;i++){
+                    showstr +='<p>'+tarr[i]+'</p>';
                 }
-                var res = '<div><p>测量值：</p>'+showstr+'</div>';
+                var res = '<div>'+showstr+'</div>';
                 return res;
             },
             confine: true
@@ -1420,13 +1485,15 @@ function initKztXR(divId, xValue,yValue1,yValue2,groupArr) {
         grid: [{
             top: '5%',
             left: 50,
-            right: 50,
-            height: '40%'
+            right: 150,
+            height: '40%',
+            containLabel: false
         }, {
             left: 50,
-            right: 50,
+            right: 150,
             top: '55%',
-            height: '40%'
+            height: '40%',
+            containLabel: false
         }],
         xAxis: [
             {
@@ -1468,6 +1535,22 @@ function initKztXR(divId, xValue,yValue1,yValue2,groupArr) {
                     show: true
                 },
                 scale: true,
+                min: function (value) {
+                    if (meugw != null & meugw !== '' & meugw != undefined) {
+                        if(value.min>meugw){
+                            return parseFloat(meugw);
+                        }
+                    }
+                    return value.min;
+                },
+                max: function (value) {
+                    if (meogw != null & meogw !== '' & meogw != undefined) {
+                        if(value.max<meogw){
+                            return parseFloat(meogw);
+                        }
+                    }
+                    return value.max;
+                }
             },
             {
                 gridIndex: 1,
@@ -1486,7 +1569,7 @@ function initKztXR(divId, xValue,yValue1,yValue2,groupArr) {
             data: yValue1,
             type: 'line',
             symbol:'image://data:image/gif;base64,'+point,
-            symbolSize: '10',
+            symbolSize: '8',
             showAllSymbol: true,
             itemStyle: {
                 normal: {
@@ -1496,6 +1579,10 @@ function initKztXR(divId, xValue,yValue1,yValue2,groupArr) {
                     }
                 }
             },
+            markLine: {
+                precision: 5,
+                data: makeLineDataX
+            }
         },
             {
                 xAxisIndex: 1,
@@ -1503,7 +1590,7 @@ function initKztXR(divId, xValue,yValue1,yValue2,groupArr) {
                 data: yValue2,
                 type: 'line',
                 symbol:'image://data:image/gif;base64,'+point,
-                symbolSize: '10',
+                symbolSize: '8',
                 showAllSymbol: true,
                 itemStyle: {
                     normal: {
@@ -1513,6 +1600,451 @@ function initKztXR(divId, xValue,yValue1,yValue2,groupArr) {
                         }
                     }
                 },
+                markLine: {
+                        precision: 5,
+                        data: makeLineDataR
+                }
+            }
+        ]
+    };
+    ;
+    if (option && typeof option === "object") {
+        kztChart.setOption(option, true);
+    }
+    kztChart.resize();
+    return kztChart;
+}
+function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
+    var kztChart = echarts.init(document.getElementById(divId), 'mytheme');
+    var makeLineDataX = new Array();
+    var makeLineDataS = new Array();
+    if (meogw != null & meogw !== '' & meogw !== undefined) {
+        var upLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#f00",
+            },
+            yAxis: parseFloat(meogw),
+            name: meogw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '上公差限'
+            }
+        };
+        makeLineDataX.push(upLimitDataLine);
+    }
+    if (meugw != null & meugw !== '' & meugw !== undefined) {
+        var downLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#f00",
+            },
+            yAxis: parseFloat(meugw),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '下公差限'
+            }
+        };
+        makeLineDataX.push(downLimitDataLine);
+    }
+
+    var averageLineX = {
+        type: 'average',
+        lineStyle: {
+            color: "#00a9e0",
+        },
+        name: '平均值',
+        label: {
+            position: "end",
+            show: true,
+            formatter: '{c}' + 	"  X-BAR",
+            color: '#00a9e0'
+        }
+    };
+    makeLineDataX.push(averageLineX);
+    var averageLineS = {
+        type: 'average',
+        lineStyle: {
+            color: "#00a9e0",
+        },
+        name: '平均值',
+        label: {
+            position: "end",
+            show: true,
+            formatter: '{c}' + 	"  S-BAR",
+            color: '#00a9e0'
+        }
+    };
+    makeLineDataS.push(averageLineS);
+    option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                animation: false
+            },
+            formatter: function (params) {
+                var index=params[0].dataIndex;
+                var tarr=tooltipArr[index];
+                var showstr='';
+                for(var i=0;i<tarr.length;i++){
+                    showstr +='<p>'+tarr[i]+'</p>';
+                }
+                var res = '<div>'+showstr+'</div>';
+                return res;
+            },
+            confine: true
+        },
+        axisPointer: {
+            link: {xAxisIndex: 'all'}
+        },
+        grid: [{
+            top: '5%',
+            left: 50,
+            right: 150,
+            height: '40%',
+            containLabel: false
+        }, {
+            left: 50,
+            right: 150,
+            top: '55%',
+            height: '40%',
+            containLabel: false
+        }],
+        xAxis: [
+            {
+                type: 'category',
+                data: xValue,
+                splitLine: {
+                    show: false
+                },
+                axisLine: {show: true},
+                axisTick: {
+                    show: true
+                }
+            },
+            {
+                gridIndex: 1,
+                type: 'category',
+                position:'top',
+                data: xValue
+                ,splitLine: {
+                    show: false
+                },
+                axisLine: {
+                    show: true,
+                    onZero: false
+                },
+                axisTick: {
+                    show: true
+                }
+            },
+        ],
+        yAxis: [
+            {
+                type: 'value',
+                splitLine: {
+                    show: false
+                },
+                axisLine: {show: true},
+                axisTick: {
+                    show: true
+                },
+                scale: true,
+                min: function (value) {
+                    if (meugw != null & meugw !== '' & meugw != undefined) {
+                        if(value.min>meugw){
+                            return parseFloat(meugw);
+                        }
+                    }
+                    return value.min;
+                },
+                max: function (value) {
+                    if (meogw != null & meogw !== '' & meogw != undefined) {
+                        if(value.max<meogw){
+                            return parseFloat(meogw);
+                        }
+                    }
+                    return value.max;
+                }
+            },
+            {
+                gridIndex: 1,
+                type: 'value',
+                splitLine: {
+                    show: false
+                },
+                axisLine: {show: true},
+                axisTick: {
+                    show: true
+                },
+                scale: true,
+            },
+        ],
+        series: [{
+            data: yValue1,
+            type: 'line',
+            symbol:'image://data:image/gif;base64,'+point,
+            symbolSize: '8',
+            showAllSymbol: true,
+            itemStyle: {
+                normal: {
+                    lineStyle: {
+                        width: 1,//折线宽度
+                        color: "#008B00"//折线颜色
+                    }
+                }
+            },
+            markLine: {
+                precision: 5,
+                data: makeLineDataX
+            }
+        },
+            {
+                xAxisIndex: 1,
+                yAxisIndex: 1,
+                data: yValue2,
+                type: 'line',
+                symbol:'image://data:image/gif;base64,'+point,
+                symbolSize: '8',
+                showAllSymbol: true,
+                itemStyle: {
+                    normal: {
+                        lineStyle: {
+                            width: 1,//折线宽度
+                            color: "#008B00"//折线颜色
+                        }
+                    }
+                },
+                markLine: {
+                    precision: 5,
+                    data: makeLineDataS
+                }
+            }
+        ]
+    };
+    ;
+    if (option && typeof option === "object") {
+        kztChart.setOption(option, true);
+    }
+    kztChart.resize();
+    return kztChart;
+}
+
+function initKztIMR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
+    var kztChart = echarts.init(document.getElementById(divId), 'mytheme');
+    var makeLineDataX = new Array();
+    var makeLineDataR = new Array();
+    if (meogw != null & meogw !== '' & meogw !== undefined) {
+        var upLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#f00",
+            },
+            yAxis: parseFloat(meogw),
+            name: meogw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '上公差限'
+            }
+        };
+        makeLineDataX.push(upLimitDataLine);
+    }
+    if (meugw != null & meugw !== '' & meugw !== undefined) {
+        var downLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#f00",
+            },
+            yAxis: parseFloat(meugw),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '下公差限'
+            }
+        };
+        makeLineDataX.push(downLimitDataLine);
+    }
+
+    var averageLineX = {
+        type: 'average',
+        lineStyle: {
+            color: "#00a9e0",
+        },
+        name: '平均值',
+        label: {
+            position: "end",
+            show: true,
+            formatter: '{c}' + 	"  X-BAR",
+            color: '#00a9e0'
+        }
+    };
+    makeLineDataX.push(averageLineX);
+    var averageLineR = {
+        type: 'average',
+        lineStyle: {
+            color: "#00a9e0",
+        },
+        name: '平均值',
+        label: {
+            position: "end",
+            show: true,
+            formatter: '{c}' + 	"  MR-BAR",
+            color: '#00a9e0'
+        }
+    };
+    makeLineDataR.push(averageLineR);
+    option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                animation: false
+            },
+            formatter: function (params) {
+                var index=params[0].dataIndex;
+                var tarr=tooltipArr[index];
+                var showstr='';
+                for(var i=0;i<tarr.length;i++){
+                    showstr +='<p>'+tarr[i]+'</p>';
+                }
+                var res = '<div>'+showstr+'</div>';
+                return res;
+            },
+            confine: true
+        },
+        axisPointer: {
+            link: {xAxisIndex: 'all'}
+        },
+        grid: [{
+            top: '5%',
+            left: 50,
+            right: 150,
+            height: '40%',
+            containLabel: false
+        }, {
+            left: 50,
+            right: 150,
+            top: '55%',
+            height: '40%',
+            containLabel: false
+        }],
+        xAxis: [
+            {
+                type: 'category',
+                data: xValue,
+                splitLine: {
+                    show: false
+                },
+                axisLine: {show: true},
+                axisTick: {
+                    show: true
+                }
+            },
+            {
+                gridIndex: 1,
+                type: 'category',
+                position:'top',
+                data: xValue
+                ,splitLine: {
+                    show: false
+                },
+                axisLine: {
+                    show: true,
+                    onZero: false
+                },
+                axisTick: {
+                    show: true
+                }
+            },
+        ],
+        yAxis: [
+            {
+                type: 'value',
+                splitLine: {
+                    show: false
+                },
+                axisLine: {show: true},
+                axisTick: {
+                    show: true
+                },
+                scale: true,
+                min: function (value) {
+                    if (meugw != null & meugw !== '' & meugw != undefined) {
+                        if(value.min>meugw){
+                            return parseFloat(meugw);
+                        }
+                    }
+                    return value.min;
+                },
+                max: function (value) {
+                    if (meogw != null & meogw !== '' & meogw != undefined) {
+                        if(value.max<meogw){
+                            return parseFloat(meogw);
+                        }
+                    }
+                    return value.max;
+                }
+            },
+            {
+                gridIndex: 1,
+                type: 'value',
+                splitLine: {
+                    show: false
+                },
+                axisLine: {show: true},
+                axisTick: {
+                    show: true
+                },
+                scale: true,
+            },
+        ],
+        series: [{
+            data: yValue1,
+            type: 'line',
+            symbol:'image://data:image/gif;base64,'+point,
+            symbolSize: '8',
+            showAllSymbol: true,
+            itemStyle: {
+                normal: {
+                    lineStyle: {
+                        width: 1,//折线宽度
+                        color: "#008B00"//折线颜色
+                    }
+                }
+            },
+            markLine: {
+                precision: 5,
+                data: makeLineDataX
+            }
+        },
+            {
+                xAxisIndex: 1,
+                yAxisIndex: 1,
+                data: yValue2,
+                type: 'line',
+                symbol:'image://data:image/gif;base64,'+point,
+                symbolSize: '8',
+                showAllSymbol: true,
+                itemStyle: {
+                    normal: {
+                        lineStyle: {
+                            width: 1,//折线宽度
+                            color: "#008B00"//折线颜色
+                        }
+                    }
+                },
+                markLine: {
+                    precision: 5,
+                    data: makeLineDataR
+                }
             }
         ]
     };

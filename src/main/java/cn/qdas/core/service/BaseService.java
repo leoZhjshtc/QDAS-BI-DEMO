@@ -67,6 +67,9 @@ public class BaseService {
         map.put("decimal",pro.getProperty("decimal"));
         map.put("ifQbSerchWertCount",pro.getProperty("ifQbSerchWertCount"));
         map.put("qbSerchWertCount",pro.getProperty("qbSerchWertCount"));
+        map.put("defaultSearchType",pro.getProperty("defaultSearchType"));
+        map.put("defaultSearchCount",pro.getProperty("defaultSearchCount"));
+        map.put("defaultSearchTime",pro.getProperty("defaultSearchTime"));
         return map;
     }
 }

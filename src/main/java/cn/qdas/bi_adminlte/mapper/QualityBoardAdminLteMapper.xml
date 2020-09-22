@@ -483,8 +483,9 @@
     </select>
     <select id="getKztChartDataMapper" parameterType="cn.qdas.bi_adminlte.bean.TeilBean" resultMap="kztChartMap">
        SELECT * FROM (
-        select TOP 125 w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS
-        WVDATZEIT,m.MEMERKART,m.MEMERKBEZ,t.TEKURZBEZEICH,t.TEBEZEICH,t.TETEILNR,ISNULL(t.TEAUFTRAGSTR,'') AS TEAUFTRAGSTR
+        select TOP ${wvwertCount} w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS
+        WVDATZEIT,m.MEMERKART,m.MEMERKBEZ,t.TEKURZBEZEICH,t.TEBEZEICH,t.TETEILNR,ISNULL(t.TEAUFTRAGSTR,'') AS TEAUFTRAGSTR,
+        m.MEUGW,m.MEOGW,m.MENENNMAS
         FROM WERTEVAR w
         LEFT JOIN TEIL t ON t.TETEIL = w.WVTEIL
         LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
@@ -500,6 +501,9 @@
         <result property="TEBEZEICH" column="TEBEZEICH"/>
         <result property="TETEILNR" column="TETEILNR"/>
         <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
+        <result property="MEUGW" column="MEUGW"/>
+        <result property="MEOGW" column="MEOGW"/>
+        <result property="MENENNMAS" column="MENENNMAS"/>
         <collection property="wvList" javaType="java.util.List" ofType="java.util.Map">
             <result property="WVWERTNR" column="WVWERTNR"/>
             <result property="WVWERT" column="WVWERT"/>

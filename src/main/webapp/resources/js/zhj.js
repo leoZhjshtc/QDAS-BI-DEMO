@@ -35,6 +35,21 @@ Array.prototype.maxValue = function() {
     }
     return max;
 }
+function getStddev(arr) {
+    var total=0;
+    for(var i=0;i<arr.length;i++){
+        total += arr[i]
+    }
+    var avg = total/arr.length;
+    var sum = 0
+    for(var i=0;i<arr.length;i++){
+        sum += Math.pow(Math.abs(arr[i]-avg),2);
+    }
+    var sum_n=sum/(arr.length-1);
+    var res = Math.sqrt(sum_n);
+    return res;
+}
+
 function initLoading(divname,loadingName) {
     $('#'+divname).loading({
         loadingWidth:120,

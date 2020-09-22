@@ -19,7 +19,7 @@
                     <!-- small box -->
                     <div class="small-box bg-green">
                         <div class="inner">
-                            <h4>合格率：${pl.passrate}%</h4>
+                            <h4>合格率：${pl.passrate}</h4>
                             <p>${pl.TEAUFTRAGSTR} </p>
                         </div>
                         <div class="icon" style="position: absolute;top: 5px;">
@@ -36,7 +36,7 @@
                     <!-- small box -->
                     <div class="small-box bg-red">
                         <div class="inner">
-                            <h4>合格率：${pl.passrate}%</h4>
+                            <h4>合格率：${pl.passrate}</h4>
                             <p>${pl.TEAUFTRAGSTR} </p>
                         </div>
                         <div class="icon" style="position: absolute;top: 5px;">

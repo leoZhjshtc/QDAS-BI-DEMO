@@ -194,6 +194,11 @@ public class QualityBoardAdminLteController {
             PropertiesUtils.writeProperties("tolerance",teilBean.getTolerance(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
             PropertiesUtils.writeProperties("ifSetupDecimal",teilBean.getIfSetupDecimal(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
             PropertiesUtils.writeProperties("decimal",teilBean.getDecimal(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+
+            PropertiesUtils.writeProperties("defaultSearchType",teilBean.getDefaultSearchType(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("defaultSearchTime",teilBean.getDefaultSearchTime(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("defaultSearchCount",teilBean.getDefaultSearchCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+
             PropertiesUtils.writeProperties("ifQbSerchWertCount",teilBean.getIfQbSerchWertCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
             PropertiesUtils.writeProperties("qbSerchWertCount",teilBean.getQbSerchWertCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
         }catch (Exception e){

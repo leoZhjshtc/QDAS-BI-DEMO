@@ -31,7 +31,7 @@
     <task:scheduler id="myScheduler" pool-size="5"/>
     <task:scheduled-tasks scheduler="myScheduler">
         <task:scheduled ref="QualityAnalyseScheduled" method="doSynchronized" cron="0 55 23 * * ?"/>
-        <task:scheduled ref="QualityAnalyseScheduledGetrag" method="doSynchronizedGetrag" cron="0 00 01 * * ?"/>
+        <task:scheduled ref="QualityAnalyseScheduledGetrag" method="doSynchronizedGetrag" cron="0 00 02 * * ?"/>
         <!-- <task:scheduled ref="QualityAnalyseScheduled" method="doMonthReport" cron="0 0 0 1 * ?" /> -->
     </task:scheduled-tasks>
     <!-- <task:scheduled-tasks>
