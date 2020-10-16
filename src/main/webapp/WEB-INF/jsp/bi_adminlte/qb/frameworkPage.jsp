@@ -64,26 +64,12 @@
     <div id="mainContent" class="content-wrapper" style="padding-top: 45px;">
         <div class="container-fluid">
             <section class="content-header">
-                <form class="row">
-                    <label class="col-md-2 col-xs-4" style="line-height: 34px;">
-                        <input type="radio" id="currentSearchType1" name="currentSearchType" class="flat-red" checked>
-                        显示时间区间
-                    </label>
-                    <label class="col-md-2 col-xs-4" style="line-height: 34px;">
-                        <input type="radio" id="currentSearchType2" name="currentSearchType" class="flat-red">
-                        显示测量值数
-                    </label>
-                </form>
                 <form class="row" style="padding-left: 15px">
                     <div class="input-group col-md-4 col-xs-8" id="currentSearchTypeDiv1">
                         <div class="input-group-addon">
                             <i class="fa fa-clock-o"></i>
                         </div>
                         <input type="text" class="form-control pull-right" id="reservationtime">
-                    </div>
-                    <div id="currentSearchTypeDiv2" style="display: none">
-                        <input id="currentSearchTypeInput" type="text" class="form-control" placeholder="测量值个数" style="width: 200px;float: left">
-                        <button  type="button" class="btn btn-info" style="margin-left: 20px;float: left" onclick="searchKztXR()">确定</button>
                     </div>
                 </form>
             </section>
@@ -228,27 +214,69 @@
             <!-- Settings tab content -->
             <div class="tab-pane active" id="control-sidebar-settings-tab">
                 <form method="post">
-                    <%--                    <h3 class="control-sidebar-heading">警戒限设置</h3>--%>
                     <div class="form-group">
-                        <label class="control-sidebar-subheading">
-                            是否启用警戒限
-                            <input id="ifSetupTolerance" type="checkbox" class="pull-right"
-                                   onclick="ifSetupToleranceClick(this)">
-                        </label>
-                        <label for="tolerance" class="control-label">警戒限倍数</label>
+<%--                        <label class="control-sidebar-subheading">--%>
+<%--                            是否启用警戒限--%>
+<%--                            <input id="ifSetupTolerance" type="checkbox" class="pull-right"--%>
+<%--                                   onclick="ifSetupToleranceClick(this)">--%>
+<%--                        </label>--%>
+                        <label for="warningLimitMultiple" class="control-label">警戒限倍数</label>
                         <div>
-                            <input type="text" class="form-control" id="tolerance" placeholder="">
+                            <input type="text" class="form-control" id="warningLimitMultiple" placeholder="">
                         </div>
+                        <label for="toleranceMultiple" class="control-label">公差倍数</label>
+                        <div>
+                            <input type="text" class="form-control" id="toleranceMultiple" placeholder="">
+                        </div>
+                        <label for="controlLimitMultiple" class="control-label">控制限倍数</label>
+                        <div>
+                            <input type="text" class="form-control" id="controlLimitMultiple" placeholder="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">全局判定标准</label>
+                        <form>
+                            <label class="col-md-12 col-xs-12">
+                                <input type="radio" id="dicideStandardType1" name="dicideStandardType" class="flat-red">
+                                按公差
+                            </label>
+                            <label class="col-md-12 col-xs-12">
+                                <input type="radio" id="dicideStandardType2" name="dicideStandardType" class="flat-red">
+                                按警戒限
+                            </label>
+                        </form>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">控制图判定标准</label>
+                        <form>
+                            <label class="col-md-12 col-xs-12">
+                                <input type="radio" id="kztDicideStandardType1" name="kztDicideStandardType" class="flat-red">
+                                按公差
+                            </label>
+                            <label class="col-md-12 col-xs-12">
+                                <input type="radio" id="kztDicideStandardType2" name="kztDicideStandardType" class="flat-red">
+                                按控制限
+                            </label>
+                        </form>
                     </div>
                 </form>
                 <form method="post" style="margin-top: 30px">
                     <div class="form-group">
+                        <label for="defaultSearchTime" class="control-label">默认显示时间区间</label>
+                        <select id="defaultSearchTime" class="form-control select2" style="width: 100%;">
+                            <option value="1">1天</option>
+                            <option value="2">2天</option>
+                            <option value="3">3天</option>
+                            <option value="4">4天</option>
+                            <option value="5">5天</option>
+                        </select>
+                        <br>
                         <label class="control-sidebar-subheading">
-                            是否自定义显示测量值个数
+                            自定义默认测量值个数
                             <input id="ifQbSerchWertCount" type="checkbox" class="pull-right"
                                    onclick="ifSetupQbSerchWertCountClick(this)">
                         </label>
-                        <label for="tolerance" class="control-label">测量值个数</label>
+                        <label for="qbSerchWertCount" class="control-label">默认测量值个数</label>
                         <div>
                             <input type="text" class="form-control" id="qbSerchWertCount" onkeyup="numberCheck(this)">
                         </div>
@@ -267,26 +295,6 @@
                     <span style="color: red" id="decimalWarn"></span>
                     <button type="button" onclick="setupConfig();" class="btn btn-info pull-right">确定</button>
                 </form>
-                <form style="margin-top: 30px">
-                    <label style="line-height: 34px;">
-                        <input type="radio" id="defaultSearchType1" name="defaultSearchType" class="flat-red">
-                        显示时间区间
-                    </label>
-                    <select id="defaultSearchTime" class="form-control select2" style="width: 100%;">
-                        <option value="1">1天</option>
-                        <option value="2">2天</option>
-                        <option value="3">3天</option>
-                        <option value="4">4天</option>
-                        <option value="5">5天</option>
-                    </select>
-                    <label style="line-height: 34px;">
-                        <input type="radio" id="defaultSearchType2" name="defaultSearchType" class="flat-red">
-                        显示测量值数
-                    </label>
-                    <input id="defaultSearchCount" type="text" class="form-control" placeholder="" onkeyup="numberCheck(this)">
-
-                </form>
-
                 <form method="post" style="margin-top: 90px">
                     <div class="form-group">
                         <label class="control-sidebar-subheading">
@@ -325,7 +333,23 @@
                 <h4 class="modal-title">最近测量</h4>
             </div>
             <div class="modal-body">
-
+                <form class="row">
+                    <label class="col-md-2 col-xs-4" style="line-height: 34px;">
+                        <input type="radio" id="searchChartDataType1" name="searchChartDataType" class="flat-red" checked>
+                        显示时间区间
+                    </label>
+                    <label class="col-md-2 col-xs-4" style="line-height: 34px;">
+                        <input type="radio" id="searchChartDataType2" name="searchChartDataType" class="flat-red">
+                        显示测量值数
+                    </label>
+                    <div class="col-md-3 col-xs-6" style="line-height: 34px;" id="chartTimeDiv">
+                        <input type="text" class="form-control pull-right" id="dztSearchTime">
+                    </div>
+                    <div class="col-md-3 col-xs-6" style="line-height: 34px;display: none" id="chartCountDiv">
+                        <input id="searchChartDataByCount" type="text" class="form-control" placeholder="测量值个数" style="width: 200px;float: left" onkeyup="numberCheck(this)">
+                        <button  type="button" class="btn btn-info" style="margin-left: 20px;float: left" onclick="searchMerkmalChartByCount()">确定</button>
+                    </div>
+                </form>
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#dztChartTab" data-toggle="tab"
@@ -336,10 +360,10 @@
                         <li class="pull-right">
                             <form class="form-horizontal" style="display:none" id="kztSearchForm">
                                 <div class="row">
-                                    <label class="control-label"
-                                           style="float: left;font-size: 15px;font-weight: normal ">样本数:</label>
-                                    <input type="text" class="form-control" style="width: 100px;float: left" value="125"
-                                           id="kztWvwertCountXR">
+<%--                                    <label class="control-label"--%>
+<%--                                           style="float: left;font-size: 15px;font-weight: normal ">样本数:</label>--%>
+<%--                                    <input type="text" class="form-control" style="width: 100px;float: left" value="125"--%>
+<%--                                           id="kztWvwertCountXR">--%>
                                     <label class="control-label"
                                            style="float: left;font-size: 15px;font-weight: normal;margin-left: 20px">样本容量:</label>
                                     <input type="text" class="form-control" style="width: 100px;float: left" value="5"
@@ -353,9 +377,6 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane active" id="dztChartTab">
-                            <div class="input-group col-md-3 col-xs-12">
-                                <input type="text" class="form-control pull-right" id="dztSearchTime">
-                            </div>
                             <div id="modalChart"></div>
                         </div>
                         <div class="tab-pane" id="kztChartTabXR">
@@ -400,31 +421,31 @@
 <script type="text/javascript" src="<%=basePath%>resources/js/zhj.js"></script>
 <script type="text/javascript" src="<%=basePath%>resources/AdminLTE-2.4.18/plugins/iCheck/icheck.js"></script>
 <script type="text/javascript">
-    var startTime = moment().startOf('second').add(-24, 'hour').format('YYYY-MM-DD HH:mm:ss');
-    var endTime = moment().startOf('second').format('YYYY-MM-DD HH:mm:ss');
+    // var startTime = moment().startOf('second').add(-24, 'hour').format('YYYY-MM-DD HH:mm:ss');
+    // var endTime = moment().startOf('second').format('YYYY-MM-DD HH:mm:ss');
+    var startTime,endTime;
+    var ifQbSerchWertCount=0;//默认不按测量值个数  按时间
     var ifQbShowOpen = false;
     var qbCarouselIndex = 0;
     var runRealTime;
+    var overallDicideStandardType;
     $(function () {
+        initSetup();
+
         $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
             checkboxClass: 'icheckbox_flat-blue',
             radioClass: 'iradio_flat-blue'
         })
-        $('#currentSearchType1').on('ifChecked', function(event){
-            $('#currentSearchTypeDiv1').show();
-            $('#currentSearchTypeDiv2').hide();
+
+        $('#searchChartDataType1').on('ifChecked', function(event){
+            $('#chartTimeDiv').show();
+            $('#chartCountDiv').hide();
+            ifQbSerchWertCount=0;
         });
-        $('#currentSearchType2').on('ifChecked', function(event){
-            $('#currentSearchTypeDiv1').hide();
-            $('#currentSearchTypeDiv2').show();
-        });
-        $('#defaultSearchType1').on('ifChecked', function(event){
-            $('#defaultSearchTime').attr('disabled',false);
-            $('#defaultSearchCount').attr('disabled',true);
-        });
-        $('#defaultSearchType2').on('ifChecked', function(event){
-            $('#defaultSearchTime').attr('disabled',true);
-            $('#defaultSearchCount').attr('disabled',false);
+        $('#searchChartDataType2').on('ifChecked', function(event){
+            $('#chartCountDiv').show();
+            $('#chartTimeDiv').hide();
+            ifQbSerchWertCount=1;
         });
         $("#qbbox").boxRefresh({
             source: '<%=basePath%>baqb/initQualityBoardPage',
@@ -492,8 +513,8 @@
             timePicker: true,
             timePicker24Hour: true,
             timePickerIncrement: 10,
-            startDate: moment().startOf('second').add(-24, 'hour'),
-            endDate: moment().startOf('second'),
+            startDate: startTime,//moment().startOf('second').add(-24, 'hour'),
+            endDate: endTime,//moment().startOf('second'),
             locale: {format: 'YYYY-MM-DD HH:mm:ss'},
         }, function (start, end, label) {
             console.log("选择了一个新的日期: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
@@ -515,20 +536,7 @@
             var endTime_search = end.format('YYYY-MM-DD HH:mm:ss');
             initMerkmalChart_search(dztSearchTeil, dztSearchMerkmal, startTime_search, endTime_search)
         });
-        initSetupTolerance();
-        // runRealTime = setInterval("startRealTime()", parseInt($('#intervalRealTime').val()) * 1000);
-        // runRealTime=setInterval(startRealTime(),10*1000);
-        // $('#searchByWertCheckbox').on('ifChanged', function(event){
-        //     if($('#searchByWertCheckbox').prop('checked')){
-        //         $('#searchByWertCount').attr("disabled",false);
-        //         $('#searchByWertBtn').attr("disabled",false);
-        //     }else{
-        //         $('#searchByWertCount').attr("disabled",true);
-        //         $('#searchByWertBtn').attr("disabled",true);
-        //     }
-        // });
     })
-
     function plChartCarouselPrev() {
         if (qbCarouselIndex !== 2) {
             $('#plChartCarousel').carousel('prev');
@@ -551,13 +559,13 @@
         //$('#qbShow').height($(window).height()-100)
     }
 
-    function ifSetupToleranceClick(checkbox) {
-        if (checkbox.checked == true) {
-            $('#tolerance').attr("disabled", false);
-        } else {
-            $('#tolerance').attr("disabled", true);
-        }
-    }
+    // function ifSetupToleranceClick(checkbox) {
+    //     if (checkbox.checked == true) {
+    //         $('#tolerance').attr("disabled", false);
+    //     } else {
+    //         $('#tolerance').attr("disabled", true);
+    //     }
+    // }
 
     function ifSetupDecimalClick(checkbox) {
         if (checkbox.checked == true) {
@@ -585,21 +593,42 @@
         }
     }
 
-    function initSetupTolerance() {
+    function initSetup() {
         $.ajax({
             url: '<%=basePath%>baqb/initSetupTolerance',
             type: 'post',
+            async:false,
             success: function (data) {
+                var days = parseInt(data.defaultSearchTime*24);
+                startTime = moment().startOf('second').add(-days, 'hour').format('YYYY-MM-DD HH:mm:ss');
+                endTime = moment().startOf('second').format('YYYY-MM-DD HH:mm:ss');
                 $('#defaultSearchTime').val(data.defaultSearchTime);
-                $('#defaultSearchCount').val(data.defaultSearchCount);
-                if (data.ifSetupTolerance == 1) {
-                    $('#ifSetupTolerance').prop("checked", true);
-                    $('#tolerance').val(data.tolerance);
-                } else {
-                    $('#ifSetupTolerance').prop("checked", false);
-                    $('#tolerance').val(data.tolerance);
-                    $('#tolerance').attr("disabled", true);
-
+                // if (data.ifSetupTolerance == 1) {
+                //     $('#ifSetupTolerance').prop("checked", true);
+                //     $('#tolerance').val(data.tolerance);
+                // } else {
+                //     $('#ifSetupTolerance').prop("checked", false);
+                //     $('#tolerance').val(data.tolerance);
+                //     $('#tolerance').attr("disabled", true);
+                //
+                // }
+                overallDicideStandardType=data.dicideStandardType;
+                $('#warningLimitMultiple').val(data.warningLimitMultiple);
+                $('#controlLimitMultiple').val(data.controlLimitMultiple);
+                $('#toleranceMultiple').val(data.toleranceMultiple);
+                if(data.dicideStandardType==1){
+                    $('#dicideStandardType1').iCheck('check');
+                    $('#dicideStandardType2').iCheck('uncheck');
+                }else if(data.dicideStandardType==2){
+                    $('#dicideStandardType1').iCheck('uncheck');
+                    $('#dicideStandardType2').iCheck('check');
+                }
+                if(data.kztDicideStandardType==1){
+                    $('#kztDicideStandardType1').iCheck('check');
+                    $('#kztDicideStandardType2').iCheck('uncheck');
+                }else if(data.kztDicideStandardType==2){
+                    $('#kztDicideStandardType1').iCheck('uncheck');
+                    $('#kztDicideStandardType2').iCheck('check');
                 }
                 if (data.ifSetupDecimal == 1) {
                     $('#ifSetupDecimal').prop("checked", true);
@@ -609,21 +638,19 @@
                     $('#decimal').val(data.decimal);
                     $('#decimal').attr("disabled", true);
                 }
-                if(data.defaultSearchType == 0){
-                    $('#defaultSearchType1').iCheck('check');
-                    $('#defaultSearchCount').attr('disabled',true);
-                }else if(data.defaultSearchType == 1){
-                    $('#defaultSearchType2').iCheck('check');
-                    $('#defaultSearchTime').attr('disabled',true);
-
-                }
-
                 if (data.ifQbSerchWertCount == 1) {
                     $('#ifQbSerchWertCount').prop("checked", true);
-                    $('#qbSerchWertCount').val(data.qbSerchWertCount);
+                    $('#qbSerchWertCount').val(data.defaultSearchCount);
+
+                    $('#searchChartDataType1').iCheck('uncheck');
+                    $('#searchChartDataType2').iCheck('check');
+                    $('#chartCountDiv').show();
+                    $('#chartTimeDiv').hide();
+                    $('#searchChartDataByCount').val(data.defaultSearchCount);
+                    ifQbSerchWertCount=1;
                 } else {
-                    $('#ifQbSerchWertCount').prop("checked", true);
-                    $('#qbSerchWertCount').val(data.qbSerchWertCount);
+                    $('#ifQbSerchWertCount').prop("checked", false);
+                    $('#qbSerchWertCount').val(data.defaultSearchCount);
                     $('#qbSerchWertCount').attr("disabled", true);
                 }
             }
@@ -631,18 +658,42 @@
     }
 
     function setupConfig() {
-        var toleranceFlag = 0;
+        var toleranceFlag = 1;
         var decimalFlag = 0;
         var wertCountFlag = 0;
-        var defaultSearchType;
         var toleranceReg = /^([+]\d+[.]\d+|[-]\d+[.]\d+|\d+[.]\d+|[+]\d+|[-]\d+|\d+)$/gi;
+        var toleranceReg2 = /^([+]\d+[.]\d+|[-]\d+[.]\d+|\d+[.]\d+|[+]\d+|[-]\d+|\d+)$/gi;
+        var toleranceReg3 = /^([+]\d+[.]\d+|[-]\d+[.]\d+|\d+[.]\d+|[+]\d+|[-]\d+|\d+)$/gi;
         var decimalReg = /^([1-9]\d*|[0]{1,1})$/;
-        if ($('#ifSetupTolerance').prop("checked")) {
-            toleranceFlag = 1;
-            if ($('#tolerance').val() == 0 | !toleranceReg.test($('#tolerance').val())) {
-                $('#decimalWarn').html("警戒限输入有误！！！")
-                return;
-            }
+        // if ($('#ifSetupTolerance').prop("checked")) {
+        //     toleranceFlag = 1;
+        //     if ($('#tolerance').val() == 0 | !toleranceReg.test($('#tolerance').val())) {
+        //         $('#decimalWarn').html("警戒限输入有误！！！")
+        //         return;
+        //     }
+        // }
+        if ($('#warningLimitMultiple').val() === 0 | !toleranceReg.test($('#warningLimitMultiple').val())) {
+            $('#decimalWarn').html("警戒限倍数输入有误！！！")
+            return;
+        }
+        if ($('#controlLimitMultiple').val() === 0 | !toleranceReg2.test($('#controlLimitMultiple').val())) {
+            $('#decimalWarn').html("控制限倍数输入有误！！！")
+            return;
+        }
+        if ($('#toleranceMultiple').val() === 0 | !toleranceReg3.test($('#toleranceMultiple').val())) {
+            $('#decimalWarn').html("公差限倍数输入有误！！！")
+            return;
+        }
+        var dicideStandardType,kztDicideStandardType;
+        if($('#dicideStandardType1').prop('checked')){
+            dicideStandardType=1;
+        }else{
+            dicideStandardType=2;
+        }
+        if($('#kztDicideStandardType1').prop('checked')){
+            kztDicideStandardType=1;
+        }else{
+            kztDicideStandardType=2;
         }
         if ($('#ifSetupDecimal').prop("checked")) {
             decimalFlag = 1;
@@ -654,25 +705,22 @@
         if ($('#ifQbSerchWertCount').prop("checked")) {
             wertCountFlag = 1;
         }
-        if($('#defaultSearchType1').prop("checked")){
-            defaultSearchType=0
-        }
-        if($('#defaultSearchType2').prop("checked")){
-            defaultSearchType=1
-        }
         $.ajax({
             url: '<%=basePath%>baqb/setupAppConfig',
             type: 'post',
             data: {
+                controlLimitMultiple:$('#controlLimitMultiple').val(),
+                warningLimitMultiple:$('#warningLimitMultiple').val(),
                 ifSetupTolerance: toleranceFlag,
-                tolerance: $('#tolerance').val(),
+                toleranceMultiple: $('#toleranceMultiple').val(),
+                dicideStandardType:dicideStandardType,
+                kztDicideStandardType:kztDicideStandardType,
                 ifSetupDecimal: decimalFlag,
                 decimal: $('#decimal').val(),
-                defaultSearchType:defaultSearchType,
-                defaultSearchTime:$('#defaultSearchTime').val(),
-                defaultSearchCount:$('#defaultSearchCount').val(),
                 ifQbSerchWertCount: wertCountFlag,
-                qbSerchWertCount: $('#qbSerchWertCount').val()
+                defaultSearchCount: $('#qbSerchWertCount').val(),
+                defaultSearchTime:$('#defaultSearchTime').val()
+
             },
             success: function (data) {
                 if (data.mess == 1) {
@@ -773,13 +821,10 @@
             clearInterval(runRealTime);
         }
     }
-
-    // function searchByWert() {
-    //     $('#qbboxRefreshHidden').click();
-    //     $('#qbchartboxRefreshHidden').click();
-    //     $('#qachartboxRefreshHidden').click();
-    //
-    // }
+    function searchMerkmalChartByCount() {
+        initMerkmalChart(dztSearchTeil,dztSearchMerkmal);
+        getKztDataXR(dztSearchTeil,dztSearchMerkmal)
+    }
     function numberCheck(ele) {
         var num = ele.value;
         var re = /^\d*$/;
@@ -793,7 +838,9 @@
             teilId: teilId,
             merkmalId: merkmalId,
             startTime: startTime,
-            endTime: endTime
+            endTime: endTime,
+            qbSerchWertCount: $('#searchChartDataByCount').val(),
+            ifQbSerchWertCount: ifQbSerchWertCount
         }
         $.ajax({
             type: 'post',
@@ -815,22 +862,24 @@
                         var tooltipPRVORNAME = [];
                         var tooltipPMBEZ = [];
                         if (data.length > 0) {
-                            upLimit = data[0].MEOGW;
-                            downLimit = data[0].MEUGW;
-                            newupLimit = data[0].NEWMEOGW;
-                            newdownLimit = data[0].NEWMEUGW;
+                            var tolObj=toleranceChange(data[0].MEUGW,data[0].MEOGW,$('#toleranceMultiple').val());
+                            upLimit = tolObj.meogw;
+                            downLimit = tolObj.meugw;
+                            var warnObj=toleranceChange(data[0].MEUGW,data[0].MEOGW,$('#warningLimitMultiple').val());
+                            newupLimit = warnObj.meogw;
+                            newdownLimit = warnObj.meugw;
                             chartTitle = data[0].MEMERKBEZ;
                             mdata = data[0].MENENNMAS;
                             for (var i = 0; i < data.length; i++) {
                                 tooltipTime.push(data[i].WVDATZEIT);
-                                tooltipPRVORNAME.push(data[i].PRVORNAME == undefined ? '' : data[i].PRVORNAME);
+                                tooltipPRVORNAME.push(data[i].PRVORNAME === undefined ? '' : data[i].PRVORNAME);
                                 tooltipPMBEZ.push('');
                                 xValue.push(data[i].WVDATZEIT);
                                 yValue.push(data[i].WVWERT)
                             }
                         }
                         // qbLinechart = initQbLineChartWithNewLimit('merkmalChartDiv', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
-                        qbLinechart = initQbLineChartWithNewLimit('modalChart', xValue, yValue, upLimit, downLimit, newupLimit, newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
+                        qbLinechart = initQbLineChartWithNewLimit('modalChart', xValue, yValue, upLimit, downLimit, newupLimit, newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle,overallDicideStandardType);
                     } else {
                         var xData = ['合格', '不合格'];
                         var yData = [];
@@ -885,22 +934,24 @@
                         var tooltipPRVORNAME = [];
                         var tooltipPMBEZ = [];
                         if (data.length > 0) {
-                            upLimit = data[0].MEOGW;
-                            downLimit = data[0].MEUGW;
-                            newupLimit = data[0].NEWMEOGW;
-                            newdownLimit = data[0].NEWMEUGW;
+                            var tolObj=toleranceChange(data[0].MEUGW,data[0].MEOGW,$('#toleranceMultiple').val());
+                            upLimit = tolObj.meogw;
+                            downLimit = tolObj.meugw;
+                            var warnObj=toleranceChange(data[0].MEUGW,data[0].MEOGW,$('#warningLimitMultiple').val());
+                            newupLimit = warnObj.meogw;
+                            newdownLimit = warnObj.meugw;
                             chartTitle = data[0].MEMERKBEZ;
                             mdata = data[0].MENENNMAS;
                             for (var i = 0; i < data.length; i++) {
                                 tooltipTime.push(data[i].WVDATZEIT);
-                                tooltipPRVORNAME.push(data[i].PRVORNAME == undefined ? '' : data[i].PRVORNAME);
+                                tooltipPRVORNAME.push(data[i].PRVORNAME === undefined ? '' : data[i].PRVORNAME);
                                 tooltipPMBEZ.push('');
                                 xValue.push(data[i].WVDATZEIT);
                                 yValue.push(data[i].WVWERT)
                             }
                         }
                         // qbLinechart = initQbLineChartWithNewLimit('merkmalChartDiv', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
-                        qbLinechart = initQbLineChartWithNewLimit('modalChart', xValue, yValue, upLimit, downLimit, newupLimit, newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
+                        qbLinechart = initQbLineChartWithNewLimit('modalChart', xValue, yValue, upLimit, downLimit, newupLimit, newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle,overallDicideStandardType);
                     } else {
                         var xData = ['合格', '不合格'];
                         var yData = [];
@@ -950,12 +1001,16 @@
             data: {
                 teilId: teilId,
                 merkmalId: merkmalId,
-                wvwertCount: $('#kztWvwertCountXR').val()
+                qbSerchWertCount: $('#searchChartDataByCount').val(),
+                ifQbSerchWertCount: ifQbSerchWertCount
             },
             success: function (data) {
                 var dataList = data[0].wvList;
                 var meugw = data[0].MEUGW;
                 var meogw = data[0].MEOGW;
+                var cObj=toleranceChange(data[0].MEUGW,data[0].MEOGW,$('#controlLimitMultiple').val());
+                var downControlLimit=cObj.meugw;
+                var upControlLimit=cObj.meogw;
                 var groupArr = new Array();//分组完的List
                 var smallArr = new Array();//List中的组
                 var tooltipArr = new Array();//tooltip显示数据
@@ -991,9 +1046,9 @@
                     xValue.push(i + 1);
 
                 }
-                initKztXR("kztChartDivXR", xValue, averageArr, rangeArr, tooltipArr, meugw, meogw);
-                initKztXS("kztChartDivXS", xValue, averageArr, sbarArr, tooltipArr, meugw, meogw)
-                getKztDataIMR(data);
+                initKztXR("kztChartDivXR", xValue, averageArr, rangeArr, tooltipArr, meugw, meogw,downControlLimit,upControlLimit);
+                initKztXS("kztChartDivXS", xValue, averageArr, sbarArr, tooltipArr, meugw, meogw,downControlLimit,upControlLimit)
+                getKztDataIMR(data,downControlLimit,upControlLimit);
             }
         })
     }
@@ -1002,7 +1057,7 @@
         getKztDataXR(dztSearchTeil, dztSearchMerkmal);
     }
 
-    function getKztDataIMR(data) {
+    function getKztDataIMR(data,downControlLimit,upControlLimit) {
         var ww = $(window).width();
         var hh = $(window).height();
         $('#kztChartDivIMR').width(ww * 0.8);
@@ -1040,7 +1095,7 @@
             xValue.push(i + 1);
 
         }
-        initKztIMR("kztChartDivIMR", xValue, averageArr, rangeArr, tooltipArr, meugw, meogw);
+        initKztIMR("kztChartDivIMR", xValue, averageArr, rangeArr, tooltipArr, meugw, meogw,downControlLimit,upControlLimit);
     }
 </script>
 </body>

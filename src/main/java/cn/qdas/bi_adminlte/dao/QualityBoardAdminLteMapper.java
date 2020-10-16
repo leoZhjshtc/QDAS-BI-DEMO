@@ -13,6 +13,7 @@ public interface QualityBoardAdminLteMapper {
     List getProcessDataMapper(TeilBean teilBean);
     List getMerkmalDataMapper(TeilBean teilBean);
     List getMerkmalDataMapperByCount(TeilBean teilBean);
+    List getQaMerkmalDataMapperByCount(TeilBean teilBean);
     List getPlMissionManageChartDataMapper(TeilBean teilBean);
     List getProcessMissionManageChartDataMapper(TeilBean teilBean);
     List getMerkmalChartDataMapper(TeilBean teilBean);
@@ -30,4 +31,5 @@ public interface QualityBoardAdminLteMapper {
     List getQbShowFormInfoMapper(TeilBean teilBean);
     Map initTeilMerkmalDetailsMapper();
     List getKztChartDataMapper(TeilBean teilBean);
+    List getKztChartDataMapperByCount(TeilBean teilBean);
 }

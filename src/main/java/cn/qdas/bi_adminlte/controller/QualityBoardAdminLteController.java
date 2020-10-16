@@ -46,26 +46,39 @@ public class QualityBoardAdminLteController {
         return "bi_adminlte/qb/qualityAnalysePage";
     }
     @RequestMapping("initPruductLineQbPage")
-    public String initPruductLineQbPage(TeilBean teilBean, Model model){
-        List list =qualityBoardAdminLteService.getProductLineDataService(teilBean);
-        model.addAttribute("plList",list);
+    public String initPruductLineQbPage(){
         return "bi_adminlte/qb/productLinePage";
+    }
+    @RequestMapping("getPruductLineQbData")
+    @ResponseBody
+    public List getPruductLineQbData(TeilBean teilBean){
+        return qualityBoardAdminLteService.getProductLineDataService(teilBean);
     }
     @RequestMapping("initProcessQbPage")
     public String initProcessQbPage(TeilBean teilBean, Model model){
-        List list=qualityBoardAdminLteService.getProcessDataService(teilBean);
-        model.addAttribute("processList",list);
         model.addAttribute("qbTeilNumValue",teilBean.getTeilNum());
         model.addAttribute("qbTeilNameValue",teilBean.getTeilName());
         model.addAttribute("qbTeilK1003Value",teilBean.getTeilK1003());
         return "bi_adminlte/qb/processPage";
     }
+    @RequestMapping("getProcessQbData")
+    @ResponseBody
+    public List getProcessQbData(TeilBean teilBean){
+        List list=qualityBoardAdminLteService.getProcessDataService(teilBean);
+        return list;
+    }
     @RequestMapping("initMerkmalQbPage")
     public String initMerkmalQbPage(TeilBean teilBean, Model model){
-        List list=qualityBoardAdminLteService.getMerkmalDataService(teilBean);
-        model.addAttribute("merkmalList",list);
+//        List list=qualityBoardAdminLteService.getMerkmalDataService(teilBean);
+//        model.addAttribute("merkmalList",list);
         model.addAttribute("qbTeilIdValue",teilBean.getTeilId());
         return "bi_adminlte/qb/merkmalPage";
+    }
+    @RequestMapping("getMerkmalQbData")
+    @ResponseBody
+    public List getMerkmalQbData(TeilBean teilBean){
+        List list=qualityBoardAdminLteService.getMerkmalDataService(teilBean);
+        return list;
     }
     @RequestMapping("getPlMissionManageChartData")
     @ResponseBody
@@ -89,19 +102,27 @@ public class QualityBoardAdminLteController {
     }
     @RequestMapping("getMissionManageDetails")
     public String getMissionManageDetails(TeilBean teilBean,Model model){
-        List list=qualityBoardAdminLteService.getMissionManageDetailsService(teilBean);
-        model.addAttribute("mmList",list);
+        model.addAttribute("mmDetailsTeilId",teilBean.getTeilId());
+        model.addAttribute("mmDetailsWVnr",teilBean.getWvwertnr());
         return "bi_adminlte/qb/mmDetailsPage";
+    }
+    @RequestMapping("getMissionManageDetailsData")
+    @ResponseBody
+    public List getMissionManageDetailsData(TeilBean teilBean){
+        List list=qualityBoardAdminLteService.getMissionManageDetailsService(teilBean);
+        return list;
     }
     @RequestMapping("initMissionManageDetails")
     public String initMissionManageDetails(Model model){
-        TeilBean teilBean = new TeilBean();
+        //TeilBean teilBean = new TeilBean();
         Map map=qualityBoardAdminLteService.initTeilMerkmalDetailsService();
-        teilBean.setTeilId(map.get("WVTEIL").toString());
-        teilBean.setWvwertnr(map.get("WVWERTNR").toString());
-        List list=qualityBoardAdminLteService.getMissionManageDetailsService(teilBean);
-        model.addAttribute("mmList",list);
-        model.addAttribute("mmMap",map);
+        model.addAttribute("mmDetailsTeilId",map.get("WVTEIL").toString());
+        model.addAttribute("mmDetailsWVnr",map.get("WVWERTNR").toString());
+//        teilBean.setTeilId(map.get("WVTEIL").toString());
+//        teilBean.setWvwertnr(map.get("WVWERTNR").toString());
+//        List list=qualityBoardAdminLteService.getMissionManageDetailsService(teilBean);
+//        model.addAttribute("mmList",list);
+//        model.addAttribute("mmMap",map);
         return "bi_adminlte/qb/mmDetailsPage";
     }
     @RequestMapping("initQaProductLinePage")
@@ -151,9 +172,16 @@ public class QualityBoardAdminLteController {
     }
     @RequestMapping("initQaMerkmalPage")
     public String initQaMerkmalPage(TeilBean teilBean,Model model){
-        List list=qualityBoardAdminLteService.getQaMerkmalDataService(teilBean);
-        model.addAttribute("qaMerkmalList",list);
+//        List list=qualityBoardAdminLteService.getQaMerkmalDataService(teilBean);
+//        model.addAttribute("qaMerkmalList",list);
+        model.addAttribute("qaMerkmalTeilIdValue",teilBean.getTeilId());
         return "bi_adminlte/qb/qaMerkmalPage";
+    }
+    @RequestMapping("getQaMerkmalData")
+    @ResponseBody
+    public List getQaMerkmalData(TeilBean teilBean){
+        List list=qualityBoardAdminLteService.getQaMerkmalDataService(teilBean);
+        return list;
     }
     @RequestMapping("getKztChartData")
     @ResponseBody
@@ -163,7 +191,7 @@ public class QualityBoardAdminLteController {
     @RequestMapping("getCpkData")
     @ResponseBody
     public Map getCpkData(TeilBean teilBean){
-        Map map=new HashMap();
+        Map map;
         if("1".equals(teilBean.getType())){
             List<Map> list=qualityBoardAdminLteService.getRecent125NumService(teilBean);
             String num=list.get(list.size()-1).get("WVWERTNR").toString();
@@ -191,16 +219,16 @@ public class QualityBoardAdminLteController {
         map.put("mess",1);
         try {
             PropertiesUtils.writeProperties("ifSetupTolerance",teilBean.getIfSetupTolerance(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
-            PropertiesUtils.writeProperties("tolerance",teilBean.getTolerance(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("toleranceMultiple",teilBean.getToleranceMultiple(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("controlLimitMultiple",teilBean.getControlLimitMultiple(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("warningLimitMultiple",teilBean.getWarningLimitMultiple(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
             PropertiesUtils.writeProperties("ifSetupDecimal",teilBean.getIfSetupDecimal(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
             PropertiesUtils.writeProperties("decimal",teilBean.getDecimal(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
-
-            PropertiesUtils.writeProperties("defaultSearchType",teilBean.getDefaultSearchType(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
             PropertiesUtils.writeProperties("defaultSearchTime",teilBean.getDefaultSearchTime(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
-            PropertiesUtils.writeProperties("defaultSearchCount",teilBean.getDefaultSearchCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
-
             PropertiesUtils.writeProperties("ifQbSerchWertCount",teilBean.getIfQbSerchWertCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
-            PropertiesUtils.writeProperties("qbSerchWertCount",teilBean.getQbSerchWertCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("defaultSearchCount",teilBean.getDefaultSearchCount(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("dicideStandardType",teilBean.getDicideStandardType(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
+            PropertiesUtils.writeProperties("kztDicideStandardType",teilBean.getKztDicideStandardType(),new Date().toString(),this.getClass().getClassLoader().getResource("setUp.properties").getPath());
         }catch (Exception e){
             e.printStackTrace();
             map.put("mess",0);

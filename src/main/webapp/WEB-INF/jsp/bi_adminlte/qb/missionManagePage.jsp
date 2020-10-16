@@ -44,13 +44,13 @@
         $('#plChartCarousel').carousel('pause');
         initPlmmChart();
         $(window).resize(function () {
-            if (mmPlchart != undefined) {
+            if (mmPlchart !== undefined) {
                 mmPlchart.resize();
             }
-            if (mmProcesschart != undefined) {
+            if (mmProcesschart !== undefined) {
                 mmProcesschart.resize();
             }
-            if (qbLinechart != undefined) {
+            if (qbLinechart !== undefined) {
                 qbLinechart.resize();
             }
             if(manyMmchartArr.length!==0){
@@ -125,8 +125,15 @@
                                         redAlarm += 1;
                                     }
                                 } else {
-                                    if ((data[i].wvnrList[j].wvList[k].MEUGW !== undefined & data[i].wvnrList[j].wvList[k].MEUGW !== '' & data[i].wvnrList[j].wvList[k].MEUGW !== 'null' & parseFloat(data[i].wvnrList[j].wvList[k].MEUGW) > parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))
-                                        | (data[i].wvnrList[j].wvList[k].MEOGW !== undefined & data[i].wvnrList[j].wvList[k].MEOGW !== '' & data[i].wvnrList[j].wvList[k].MEOGW !== 'null' & parseFloat(data[i].wvnrList[j].wvList[k].MEOGW) < parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))) {
+                                    var obj;
+                                    if(overallDicideStandardType==='1'){
+                                        obj=toleranceChange(data[i].wvnrList[j].wvList[k].MEUGW,data[i].wvnrList[j].wvList[k].MEOGW,$('#toleranceMultiple').val());
+                                    }else{
+                                        obj=toleranceChange(data[i].wvnrList[j].wvList[k].MEUGW,data[i].wvnrList[j].wvList[k].MEOGW,$('#warningLimitMultiple').val());
+                                    }
+
+                                    if ((!isBlank(obj.meugw)& parseFloat(obj.meugw) > parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))
+                                        | (!isBlank(obj.meogw)& parseFloat(obj.meogw) < parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))) {
                                         redAlarm += 1;
                                     }
                                 }
@@ -200,8 +207,15 @@
                                         redAlarm += 1;
                                     }
                                 } else {
-                                    if ((data[i].wvnrList[j].wvList[k].MEUGW !== undefined & data[i].wvnrList[j].wvList[k].MEUGW !== '' & data[i].wvnrList[j].wvList[k].MEUGW !== 'null' & parseFloat(data[i].wvnrList[j].wvList[k].MEUGW) > parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))
-                                        | (data[i].wvnrList[j].wvList[k].MEOGW !== undefined & data[i].wvnrList[j].wvList[k].MEOGW !== '' & data[i].wvnrList[j].wvList[k].MEOGW !== 'null' & parseFloat(data[i].wvnrList[j].wvList[k].MEOGW) < parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))) {
+                                    var obj;
+                                    if(overallDicideStandardType==='1'){
+                                        obj=toleranceChange(data[i].wvnrList[j].wvList[k].MEUGW,data[i].wvnrList[j].wvList[k].MEOGW,$('#toleranceMultiple').val());
+                                    }else{
+                                        obj=toleranceChange(data[i].wvnrList[j].wvList[k].MEUGW,data[i].wvnrList[j].wvList[k].MEOGW,$('#warningLimitMultiple').val());
+                                    }
+
+                                    if ((!isBlank(obj.meugw)& parseFloat(obj.meugw) > parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))
+                                        | (!isBlank(obj.meogw)& parseFloat(obj.meogw) < parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))) {
                                         redAlarm += 1;
                                     }
                                 }
@@ -265,8 +279,14 @@
                                         alarmIndex=1;
                                     }
                                 } else {
-                                    if ((data[i].wvnrList[j].wvList[k].MEUGW !== undefined & data[i].wvnrList[j].wvList[k].MEUGW !== '' & data[i].wvnrList[j].wvList[k].MEUGW !== 'null' & parseFloat(data[i].wvnrList[j].wvList[k].MEUGW) > parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))
-                                        | (data[i].wvnrList[j].wvList[k].MEOGW !== undefined & data[i].wvnrList[j].wvList[k].MEOGW !== '' & data[i].wvnrList[j].wvList[k].MEOGW !== 'null' & parseFloat(data[i].wvnrList[j].wvList[k].MEOGW) < parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))) {
+                                    var obj;
+                                    if(overallDicideStandardType==='1'){
+                                        obj=toleranceChange(data[i].wvnrList[j].wvList[k].MEUGW,data[i].wvnrList[j].wvList[k].MEOGW,$('#toleranceMultiple').val());
+                                    }else{
+                                        obj=toleranceChange(data[i].wvnrList[j].wvList[k].MEUGW,data[i].wvnrList[j].wvList[k].MEOGW,$('#warningLimitMultiple').val());
+                                    }
+                                    if ((!isBlank(obj.meugw)& parseFloat(obj.meugw) > parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))
+                                        | (!isBlank(obj.meogw)& parseFloat(obj.meogw) < parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))) {
                                         redAlarm += 1;
                                         alarmIndex=1;
                                     }
@@ -351,8 +371,14 @@
                                         alarmIndex=1;
                                     }
                                 } else {
-                                    if ((data[i].wvnrList[j].wvList[k].MEUGW !== undefined & data[i].wvnrList[j].wvList[k].MEUGW !== '' & data[i].wvnrList[j].wvList[k].MEUGW !== 'null' & parseFloat(data[i].wvnrList[j].wvList[k].MEUGW) > parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))
-                                        | (data[i].wvnrList[j].wvList[k].MEOGW !== undefined & data[i].wvnrList[j].wvList[k].MEOGW !== '' & data[i].wvnrList[j].wvList[k].MEOGW !== 'null' & parseFloat(data[i].wvnrList[j].wvList[k].MEOGW) < parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))) {
+                                    var obj;
+                                    if(overallDicideStandardType==='1'){
+                                        obj=toleranceChange(data[i].wvnrList[j].wvList[k].MEUGW,data[i].wvnrList[j].wvList[k].MEOGW,$('#toleranceMultiple').val());
+                                    }else{
+                                        obj=toleranceChange(data[i].wvnrList[j].wvList[k].MEUGW,data[i].wvnrList[j].wvList[k].MEOGW,$('#warningLimitMultiple').val());
+                                    }
+                                    if ((!isBlank(obj.meugw)& parseFloat(obj.meugw) > parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))
+                                        | (!isBlank(obj.meogw)& parseFloat(obj.meogw) < parseFloat(data[i].wvnrList[j].wvList[k].WVWERT))) {
                                         redAlarm += 1;
                                         alarmIndex=1;
                                     }

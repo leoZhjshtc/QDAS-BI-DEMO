@@ -136,8 +136,18 @@
                                         pieNokCount += 1;
                                     }
                                 } else {
-                                    if ((data[i].timeList[j].wvList[k].MEUGW !== undefined & data[i].timeList[j].wvList[k].MEUGW !== '' & data[i].timeList[j].wvList[k].MEUGW !== 'null' & parseFloat(data[i].timeList[j].wvList[k].MEUGW) > parseFloat(data[i].timeList[j].wvList[k].WVWERT))
-                                        | (data[i].timeList[j].wvList[k].MEOGW !== undefined & data[i].timeList[j].wvList[k].MEOGW !== '' & data[i].timeList[j].wvList[k].MEOGW !== 'null' & parseFloat(data[i].timeList[j].wvList[k].MEOGW) < parseFloat(data[i].timeList[j].wvList[k].WVWERT))) {
+                                    var downLimit,upLimit;
+                                    if(overallDicideStandardType==='1'){
+                                        var obj=toleranceChange(data[i].timeList[j].wvList[k].MEUGW,data[i].timeList[j].wvList[k].MEOGW,$('#toleranceMultiple').val());
+                                        downLimit=obj.meugw;
+                                        upLimit=obj.meogw;
+                                    }else{
+                                        var obj=toleranceChange(data[i].timeList[j].wvList[k].MEUGW,data[i].timeList[j].wvList[k].MEOGW,$('#warningLimitMultiple').val());
+                                        downLimit=obj.meugw;
+                                        upLimit=obj.meogw;
+                                    }
+                                    if ((!isBlank(downLimit)& parseFloat(downLimit) > parseFloat(data[i].timeList[j].wvList[k].WVWERT))
+                                        | (!isBlank(upLimit) & parseFloat(upLimit) < parseFloat(data[i].timeList[j].wvList[k].WVWERT))) {
                                         nokCount += 1;
                                         pieNokCount += 1;
                                     }

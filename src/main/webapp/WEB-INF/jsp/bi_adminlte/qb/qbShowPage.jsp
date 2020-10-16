@@ -103,7 +103,9 @@
                 endTime: endTime,
                 teilNum: teilNum,
                 teilK1003: teilK1003,
-                page: pageIndex
+                page: pageIndex,
+                qbSerchWertCount: $('#qbSerchWertCount').val(),
+                ifQbSerchWertCount: ifQbSerchWertCount
             },
             success: function (data) {
                 $('#td1').html(data.rows.TETEILNR);
@@ -137,10 +139,12 @@
                 var tooltipPRVORNAME = [];
                 var tooltipPMBEZ = [];
                 if (data.length > 0) {
-                    upLimit = data[0].MEOGW;
-                    downLimit = data[0].MEUGW;
-                    newupLimit = data[0].NEWMEOGW;
-                    newdownLimit = data[0].NEWMEUGW;
+                    var tolObj=toleranceChange(data[0].MEUGW,data[0].MEOGW,$('#toleranceMultiple').val());
+                    upLimit = tolObj.meogw;
+                    downLimit = tolObj.meugw;
+                    var warnObj=toleranceChange(data[0].MEUGW,data[0].MEOGW,$('#warningLimitMultiple').val());
+                    newupLimit = warnObj.meogw;
+                    newdownLimit = warnObj.meugw;
                     chartTitle = data[0].MEMERKBEZ;
                     mdata = data[0].MENENNMAS;
                     for (var i = 0; i < data.length; i++) {
@@ -151,7 +155,7 @@
                         yValue.push(data[i].WVWERT)
                     }
                 }
-                qbShowLinechart = initQbLineChartWithNewLimit('qbShowChartDiv', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle);
+                qbShowLinechart = initQbLineChartWithNewLimit('qbShowChartDiv', xValue, yValue, upLimit, downLimit,newupLimit,newdownLimit, mdata, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, chartTitle,overallDicideStandardType);
             } else {
                 var xData = ['合格', '不合格'];
                 var yData = [];

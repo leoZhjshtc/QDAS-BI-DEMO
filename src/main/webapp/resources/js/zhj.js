@@ -77,3 +77,57 @@ function noRepeatArr(arr) {
     }
     return ret;
 }
+
+function toleranceChange(meugw,meogw,percentage) {
+    var reObj=new Object();
+    if(!isBlank(meugw)&isBlank(meogw)){
+        if("0"===meugw){
+            reObj.meugw=0;
+        }else if(parseFloat(meugw)>0){
+            reObj.meugw=parseFloat(meugw)+parseFloat(meugw)*(1-parseFloat(percentage));
+        }else if (Float.parseFloat(meugw)<0){
+            remap.put("meugw",Float.parseFloat(meugw)-Float.parseFloat(meugw)*(1-percentage));
+            reObj.meugw=parseFloat(meugw)-parseFloat(meugw)*(1-parseFloat(percentage));
+        }
+        reObj.meogw=undefined;
+        return reObj;
+    }else if(isBlank(meugw)&!isBlank(meogw)){
+        if("0"===meogw){
+            reObj.meogw=0;
+        }else if(parseFloat(meogw)>0){
+            reObj.meogw=parseFloat(meugw)-parseFloat(meugw)*(1-parseFloat(percentage));
+        }else if(parseFloat(meogw)<0){
+            reObj.meogw=parseFloat(meugw)+parseFloat(meugw)*(1-parseFloat(percentage));
+        }
+        reObj.meugw=undefined;
+        return reObj;
+    }else if(!isBlank(meugw)&&!isBlank(meogw)){
+        if("0"===meugw){
+            reObj.meugw=meugw;
+            reObj.meogw=parseFloat(meogw)*parseFloat(percentage);
+            return reObj;
+        }else if("0"===meogw){
+            reObj.meogw=meogw;
+            reObj.meugw=parseFloat(meugw)*parseFloat(percentage);
+            return reObj;
+        }else{
+            var tolerance=parseFloat(meogw)-parseFloat(meugw);
+            var newTolerance=((parseFloat(meogw)-parseFloat(meugw))*parseFloat(percentage)-tolerance)/2;
+            reObj.meugw=parseFloat(meugw)-newTolerance;
+            reObj.meogw=parseFloat(meogw)+newTolerance;
+            return reObj;
+        }
+    }else{
+        reObj.meugw=meugw;
+        reObj.meogw=meogw;
+    }
+    reObj.meugw=reObj.meugw;
+    reObj.meogw=reObj.meogw;
+    return reObj;
+}
+function isBlank(str) {
+    if(str===""|str==="null"|str===undefined){
+        return true
+    }
+    return false;
+}

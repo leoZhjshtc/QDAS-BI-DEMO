@@ -62,14 +62,17 @@ public class BaseService {
             e.printStackTrace();
         }
         map.put("ifSetupTolerance",pro.getProperty("ifSetupTolerance"));
-        map.put("tolerance",pro.getProperty("tolerance"));
+        map.put("toleranceMultiple",pro.getProperty("toleranceMultiple"));
+        map.put("controlLimitMultiple",pro.getProperty("controlLimitMultiple"));
+        map.put("warningLimitMultiple",pro.getProperty("warningLimitMultiple"));
         map.put("ifSetupDecimal",pro.getProperty("ifSetupDecimal"));
         map.put("decimal",pro.getProperty("decimal"));
         map.put("ifQbSerchWertCount",pro.getProperty("ifQbSerchWertCount"));
         map.put("qbSerchWertCount",pro.getProperty("qbSerchWertCount"));
-        map.put("defaultSearchType",pro.getProperty("defaultSearchType"));
         map.put("defaultSearchCount",pro.getProperty("defaultSearchCount"));
         map.put("defaultSearchTime",pro.getProperty("defaultSearchTime"));
+        map.put("dicideStandardType",pro.getProperty("dicideStandardType"));
+        map.put("kztDicideStandardType",pro.getProperty("kztDicideStandardType"));
         return map;
     }
 }

@@ -23,20 +23,20 @@
             <div id="processDiv"></div>
         </div>
         <div class="item">
-                <%--<div id="merkmalDiv"></div>--%>
-                <div class="nav-tabs-custom bg-teal">
-                    <ul class="nav nav-tabs bg-teal">
-                        <li class="active"><a href="#merkmalDiv" data-toggle="tab">参数看板</a></li>
-                        <li><a href="#merkmalDetails" data-toggle="tab" onclick="initMerkmalDetails()">参数详情</a></li>
-                    </ul>
-                    <div class="tab-content bg-teal">
-                        <div class="tab-pane active" id="merkmalDiv">
-                        </div>
-                        <div class="tab-pane" id="merkmalDetails">
-                        </div>
-
+            <%--<div id="merkmalDiv"></div>--%>
+            <div class="nav-tabs-custom bg-teal">
+                <ul class="nav nav-tabs bg-teal">
+                    <li class="active"><a href="#merkmalDiv" data-toggle="tab">参数看板</a></li>
+                    <li><a href="#merkmalDetails" data-toggle="tab" onclick="initMerkmalDetails()">参数详情</a></li>
+                </ul>
+                <div class="tab-content bg-teal">
+                    <div class="tab-pane active" id="merkmalDiv">
                     </div>
+                    <div class="tab-pane" id="merkmalDetails">
+                    </div>
+
                 </div>
+            </div>
         </div>
     </div>
     <%--<a class="left carousel-control" href="#plCarousel" data-slide="prev">
@@ -50,16 +50,10 @@
 <script type="text/javascript">
     $(function () {
         $('#plCarousel').carousel('pause');
-        var ifQbSerchWertCount = 0
-        if ($('#searchByWertCheckbox').prop('checked')) {
-            ifQbSerchWertCount = 1
-        }
-        $('#plDiv').load('<%=basePath%>baqb/initPruductLineQbPage', {
+        $('#plDiv').load('<%=basePath%>baqb/initPruductLineQbPage'/*, {
             startTime: startTime,
-            endTime: endTime,
-            qbSerchWertCount: $('#searchByWertCount').val(),
-            ifQbSerchWertCount: ifQbSerchWertCount
-        });
+            endTime: endTime
+        }*/);
     })
     $('#plCarousel').on('slide.bs.carousel', function (obj) {
         // 当前轮播索引
@@ -67,8 +61,13 @@
         console.log("索引:" + index);
         qbCarouselIndex = index;
     });
+
     function initMerkmalDetails() {
-        $('#merkmalDetails').load('<%=basePath%>baqb/initQaMerkmalPage',{teilId:$('#qbTeilIdValue').val(),startTime:startTime,endTime:endTime});
+        $('#merkmalDetails').load('<%=basePath%>baqb/initQaMerkmalPage', {
+            teilId: $('#qbTeilIdValue').val()/*,
+            startTime: startTime,
+            endTime: endTime*/
+        });
     }
 </script>
 </body>

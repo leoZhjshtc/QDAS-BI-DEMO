@@ -895,15 +895,7 @@ function initQbLineChart(divId, xValues, yValues, upLimitData, downLimitData, mD
     return lineChart;
 }
 
-function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downLimitData, newupLimit, newdownLimit, mData, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, title) {
-    var upanddown;
-    if (notBlank(downLimitData) & notBlank(upLimitData)) {
-        upanddown = (parseFloat(upLimitData) - parseFloat(downLimitData)) / 0.8;
-    } else if ((!notBlank(downLimitData)) & notBlank(upLimitData)) {
-        upanddown = 0;
-    } else if ((!notBlank(upLimitData)) & notBlank(downLimitData)) {
-        upanddown = 0;
-    }
+function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downLimitData, newupLimit, newdownLimit, mData, tooltipTime, tooltipPRVORNAME, tooltipPMBEZ, title,dicideStandardType) {
     var averageLine = {
         type: 'average',
         lineStyle: {
@@ -919,7 +911,7 @@ function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downL
     };
     var makeLineData = new Array();
     makeLineData.push(averageLine);
-    if (newupLimit != null & newupLimit !== '' & newupLimit != undefined) {
+    if (newupLimit !== "null" & newupLimit !== '' & newupLimit !== undefined) {
         var newupLimitLine = {
             silent: false,
             lineStyle: {
@@ -936,7 +928,7 @@ function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downL
         };
         makeLineData.push(newupLimitLine);
     }
-    if (newdownLimit != null & newdownLimit !== '' & newdownLimit != undefined) {
+    if (newdownLimit !== "null" & newdownLimit !== '' & newdownLimit !== undefined) {
         var newdownLimitLine = {
             silent: false,
             lineStyle: {
@@ -953,7 +945,7 @@ function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downL
         };
         makeLineData.push(newdownLimitLine);
     }
-    if (upLimitData != null & upLimitData !== '' & upLimitData != undefined) {
+    if (upLimitData !== "null" & upLimitData !== '' & upLimitData !== undefined) {
         var upLimitDataLine = {
             silent: false,
             lineStyle: {
@@ -970,7 +962,7 @@ function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downL
         };
         makeLineData.push(upLimitDataLine);
     }
-    if (downLimitData != null & downLimitData !== '' & downLimitData != undefined) {
+    if (downLimitData !== "null" & downLimitData !== '' & downLimitData !== undefined) {
         var downLimitDataLine = {
             silent: false,
             lineStyle: {
@@ -987,7 +979,7 @@ function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downL
         };
         makeLineData.push(downLimitDataLine);
     }
-    if (mData != null & mData !== '' & mData != undefined) {
+    if (mData !== "null" & mData !== '' & mData !== undefined) {
         var mDataLine = {
             silent: false,
             lineStyle: {
@@ -1049,79 +1041,64 @@ function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downL
                 axisTick: {
                     show: false
                 },
+                axisLabel: {
+                  showMinLabel:false,
+                  showMaxLabel: false
+                },
                 scale: true,
                 min: function (value) {
-                    /*var minnum;
-                    if ((downLimitData == null | downLimitData === '' | downLimitData == undefined) & (mData == null | mData === '' | mData == undefined)) {
-                        minnum = value.min;
-                    } else if (value.min < (parseFloat(downLimitData) - upanddown * 0.1)) {
-                        minnum = value.min;
-                    } else if ((downLimitData == null | downLimitData === '' | downLimitData == undefined) & mData != null & mData !== '' & mData != undefined & value.min > parseFloat(mData)) {
-                        minnum = parseFloat(mData) - parseFloat(upanddown) * 0.1;
-                    } else {
-                        minnum = parseFloat(downLimitData) - parseFloat(upanddown) * 0.1;
-                    }*/
+                    var re=value.min;
                     if (newdownLimit != null & newdownLimit !== '' & newdownLimit != undefined) {
                         if (downLimitData != null & downLimitData !== '' & downLimitData != undefined) {
                             if (parseFloat(newdownLimit) < parseFloat(downLimitData) & parseFloat(newdownLimit) < value.min) {
-                                return parseFloat(newdownLimit);
+                                re = parseFloat(newdownLimit);
                             }
                         } else {
                             if (parseFloat(newdownLimit) < value.min) {
-                                return parseFloat(newdownLimit);
+                                re = parseFloat(newdownLimit);
                             }
                         }
                     }
                     if (downLimitData != null & downLimitData !== '' & downLimitData !== undefined) {
                         if (newdownLimit != null & newdownLimit !== '' & newdownLimit !== undefined) {
                             if (parseFloat(downLimitData) < parseFloat(newdownLimit) & parseFloat(downLimitData) < value.min) {
-                                return parseFloat(downLimitData);
+                                re = parseFloat(downLimitData);
                             }
                         } else {
                             if (parseFloat(downLimitData) < value.min) {
-                                return parseFloat(downLimitData);
+                                re = parseFloat(downLimitData);
                             }
                         }
                     }
-
-                    return value.min;
+                    var aa=(value.max-value.min)*1.1/2;
+                    return re-aa;
                 },
                 max: function (value) {
-                    /*var maxnum;
-                    if ((upLimitData == null | upLimitData === '' | upLimitData == undefined) & (mData == null | mData === '' | mData == undefined)) {
-                        maxnum = value.max;
-                    } else if (value.max > (parseFloat(upLimitData) + upanddown * 0.1)) {
-                        maxnum = value.max;
-                    } else if ((upLimitData == null | upLimitData === '' | upLimitData == undefined) & mData != null & mData !== '' & mData != undefined & value.max < parseFloat(mData)) {
-                        maxnum = parseFloat(mData) + parseFloat(upanddown) * 0.1;
-                    } else {
-                        maxnum = parseFloat(upLimitData) + parseFloat(upanddown) * 0.1;
-                    }
-                    return parseFloat(maxnum).toFixed(5);*/
-                    if (newupLimit != null & newupLimit !== '' & newupLimit != undefined) {
-                        if (upLimitData != null & upLimitData !== '' & upLimitData != undefined) {
+                    var re = value.max;
+                    if (newupLimit !== null & newupLimit !== '' & newupLimit != undefined) {
+                        if (upLimitData !== null & upLimitData !== '' & upLimitData != undefined) {
                             if (parseFloat(newupLimit) > parseFloat(upLimitData) & parseFloat(newupLimit) > value.max) {
-                                return parseFloat(newupLimit);
+                                re = parseFloat(newupLimit);
                             }
                         } else {
                             if (parseFloat(newupLimit) > value.max) {
-                                return parseFloat(newupLimit);
+                                re = parseFloat(newupLimit);
                             }
                         }
                     }
                     if (upLimitData != null & upLimitData !== '' & upLimitData != undefined) {
                         if (newupLimit != null & newupLimit !== '' & newupLimit != undefined) {
                             if (parseFloat(upLimitData) > parseFloat(newupLimit) & parseFloat(upLimitData) > value.max) {
-                                return parseFloat(upLimitData);
+                                re = parseFloat(upLimitData);
                             }
                         } else {
                             if (parseFloat(upLimitData) > value.max) {
-                                return parseFloat(upLimitData);
+                                re = parseFloat(upLimitData);
                             }
                         }
                     }
-
-                    return value.max;
+                    var aa=(value.max-value.min)*1.1/2;
+                    return re+aa;
                 }
             }
         ],
@@ -1151,29 +1128,21 @@ function initQbLineChartWithNewLimit(divId, xValues, yValues, upLimitData, downL
                 type: 'line',
                 // symbol:'image://data:image/gif;base64,'+point,
                 symbol: function (value, params) {
-                    if (newupLimit != null & newupLimit !== '' & newupLimit != undefined) {
-                        if (parseFloat(newupLimit) < parseFloat(value)) {
-                            return 'image://data:image/gif;base64,' + uppoint;
+                    var pointType=point;
+                    if(dicideStandardType==="1"){
+                        if(upLimitData !== "null" && upLimitData !== '' && upLimitData !== undefined&&parseFloat(upLimitData) < parseFloat(value)){
+                            pointType=uppoint;
+                        }else if(downLimitData !== "null" && downLimitData !== '' && downLimitData !== undefined&&parseFloat(downLimitData) > parseFloat(value)){
+                            pointType=downpoint;
                         }
-                    } else {
-                        if (upLimitData != null & upLimitData !== '' & upLimitData != undefined) {
-                            if (parseFloat(upLimitData) < parseFloat(value)) {
-                                return 'image://data:image/gif;base64,' + uppoint;
-                            }
-                        }
-                    }
-                    if (newdownLimit != null & newdownLimit !== '' & newdownLimit != undefined) {
-                        if (parseFloat(newdownLimit) > parseFloat(value)) {
-                            return 'image://data:image/gif;base64,' + downpoint;
-                        }
-                    } else {
-                        if (downLimitData != null & downLimitData !== '' & downLimitData != undefined) {
-                            if (parseFloat(downLimitData) > parseFloat(value)) {
-                                return 'image://data:image/gif;base64,' + downpoint;
-                            }
+                    }else{
+                        if(newupLimit !== "null" && newupLimit !== '' && newupLimit !== undefined&&parseFloat(newupLimit) < parseFloat(value)){
+                            pointType=uppoint;
+                        }else if(newdownLimit !== "null" && newdownLimit !== '' && newdownLimit !== undefined&&parseFloat(newdownLimit) > parseFloat(value)){
+                            pointType=downpoint;
                         }
                     }
-                    return 'image://data:image/gif;base64,' + point;
+                    return 'image://data:image/gif;base64,' + pointType;
                 },
                 symbolSize: '10',
                 showAllSymbol: true,
@@ -1394,11 +1363,11 @@ function initQaLineChart(divId, xValues, yValues, upLimitData, downLimitData, mD
     return lineChart;
 }
 
-function initKztXR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
+function initKztXR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw,downControlLimit,upControlLimit) {
     var kztChart = echarts.init(document.getElementById(divId), 'mytheme');
     var makeLineDataX = new Array();
     var makeLineDataR = new Array();
-    if (meogw != null & meogw !== '' & meogw !== undefined) {
+    if (meogw !== "null" & meogw !== '' && meogw !== undefined) {
         var upLimitDataLine = {
             silent: false,
             lineStyle: {
@@ -1415,7 +1384,7 @@ function initKztXR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
         };
         makeLineDataX.push(upLimitDataLine);
     }
-    if (meugw != null & meugw !== '' & meugw !== undefined) {
+    if (meugw !== "null" & meugw !== '' && meugw !== undefined) {
         var downLimitDataLine = {
             silent: false,
             lineStyle: {
@@ -1432,7 +1401,40 @@ function initKztXR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
         };
         makeLineDataX.push(downLimitDataLine);
     }
-
+    if (downControlLimit !== "null" & downControlLimit !== '' && downControlLimit !== undefined) {
+        var cDownLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#110AFF"
+            },
+            yAxis: parseFloat(downControlLimit),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '下控制限'
+            }
+        };
+        makeLineDataX.push(cDownLimitDataLine);
+    }
+    if (upControlLimit !== "null" & upControlLimit !== '' && upControlLimit !== undefined) {
+        var cUpLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#110AFF",
+            },
+            yAxis: parseFloat(upControlLimit),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '上控制限'
+            }
+        };
+        makeLineDataX.push(cUpLimitDataLine);
+    }
     var averageLineX = {
         type: 'average',
         lineStyle: {
@@ -1536,7 +1538,7 @@ function initKztXR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
                 },
                 scale: true,
                 min: function (value) {
-                    if (meugw != null & meugw !== '' & meugw != undefined) {
+                    if (meugw !== "null" & meugw !== '' && meugw !== undefined) {
                         if(value.min>meugw){
                             return parseFloat(meugw);
                         }
@@ -1544,7 +1546,7 @@ function initKztXR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
                     return value.min;
                 },
                 max: function (value) {
-                    if (meogw != null & meogw !== '' & meogw != undefined) {
+                    if (meogw !== "null" & meogw !== '' && meogw !== undefined) {
                         if(value.max<meogw){
                             return parseFloat(meogw);
                         }
@@ -1607,18 +1609,17 @@ function initKztXR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
             }
         ]
     };
-    ;
     if (option && typeof option === "object") {
         kztChart.setOption(option, true);
     }
     kztChart.resize();
     return kztChart;
 }
-function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
+function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw,downControlLimit,upControlLimit) {
     var kztChart = echarts.init(document.getElementById(divId), 'mytheme');
     var makeLineDataX = new Array();
     var makeLineDataS = new Array();
-    if (meogw != null & meogw !== '' & meogw !== undefined) {
+    if (meogw !== "null" & meogw !== '' && meogw !== undefined) {
         var upLimitDataLine = {
             silent: false,
             lineStyle: {
@@ -1635,7 +1636,7 @@ function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
         };
         makeLineDataX.push(upLimitDataLine);
     }
-    if (meugw != null & meugw !== '' & meugw !== undefined) {
+    if (meugw !== "null" & meugw !== '' && meugw !== undefined) {
         var downLimitDataLine = {
             silent: false,
             lineStyle: {
@@ -1652,7 +1653,40 @@ function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
         };
         makeLineDataX.push(downLimitDataLine);
     }
-
+    if (downControlLimit !== "null" & downControlLimit !== '' && downControlLimit !== undefined) {
+        var cDownLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#110AFF"
+            },
+            yAxis: parseFloat(downControlLimit),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '下控制限'
+            }
+        };
+        makeLineDataX.push(cDownLimitDataLine);
+    }
+    if (upControlLimit !== "null" & upControlLimit !== '' && upControlLimit !== undefined) {
+        var cUpLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#110AFF",
+            },
+            yAxis: parseFloat(upControlLimit),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '上控制限'
+            }
+        };
+        makeLineDataX.push(cUpLimitDataLine);
+    }
     var averageLineX = {
         type: 'average',
         lineStyle: {
@@ -1756,7 +1790,7 @@ function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
                 },
                 scale: true,
                 min: function (value) {
-                    if (meugw != null & meugw !== '' & meugw != undefined) {
+                    if (meugw !== "null" & meugw !== '' && meugw !== undefined) {
                         if(value.min>meugw){
                             return parseFloat(meugw);
                         }
@@ -1764,7 +1798,7 @@ function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
                     return value.min;
                 },
                 max: function (value) {
-                    if (meogw != null & meogw !== '' & meogw != undefined) {
+                    if (meogw !== "null" & meogw !== '' && meogw !== undefined) {
                         if(value.max<meogw){
                             return parseFloat(meogw);
                         }
@@ -1827,7 +1861,6 @@ function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
             }
         ]
     };
-    ;
     if (option && typeof option === "object") {
         kztChart.setOption(option, true);
     }
@@ -1835,11 +1868,11 @@ function initKztXS(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
     return kztChart;
 }
 
-function initKztIMR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
+function initKztIMR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw,downControlLimit,upControlLimit) {
     var kztChart = echarts.init(document.getElementById(divId), 'mytheme');
     var makeLineDataX = new Array();
     var makeLineDataR = new Array();
-    if (meogw != null & meogw !== '' & meogw !== undefined) {
+    if (meogw !== "null" & meogw !== '' && meogw !== undefined) {
         var upLimitDataLine = {
             silent: false,
             lineStyle: {
@@ -1856,7 +1889,7 @@ function initKztIMR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
         };
         makeLineDataX.push(upLimitDataLine);
     }
-    if (meugw != null & meugw !== '' & meugw !== undefined) {
+    if (meugw !== "null" & meugw !== '' && meugw !== undefined) {
         var downLimitDataLine = {
             silent: false,
             lineStyle: {
@@ -1873,7 +1906,40 @@ function initKztIMR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
         };
         makeLineDataX.push(downLimitDataLine);
     }
-
+    if (downControlLimit !== "null" & downControlLimit !== '' && downControlLimit !== undefined) {
+        var cDownLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#110AFF"
+            },
+            yAxis: parseFloat(downControlLimit),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '下控制限'
+            }
+        };
+        makeLineDataX.push(cDownLimitDataLine);
+    }
+    if (upControlLimit !== "null" & upControlLimit !== '' && upControlLimit !== undefined) {
+        var cUpLimitDataLine = {
+            silent: false,
+            lineStyle: {
+                type: "solid",
+                color: "#110AFF",
+            },
+            yAxis: parseFloat(upControlLimit),
+            name: meugw,
+            label: {
+                position: "end",
+                show: true,
+                formatter: '{c}' + '上控制限'
+            }
+        };
+        makeLineDataX.push(cUpLimitDataLine);
+    }
     var averageLineX = {
         type: 'average',
         lineStyle: {
@@ -1977,7 +2043,7 @@ function initKztIMR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
                 },
                 scale: true,
                 min: function (value) {
-                    if (meugw != null & meugw !== '' & meugw != undefined) {
+                    if (meugw !== "null" & meugw !== '' && meugw !== undefined) {
                         if(value.min>meugw){
                             return parseFloat(meugw);
                         }
@@ -1985,7 +2051,7 @@ function initKztIMR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
                     return value.min;
                 },
                 max: function (value) {
-                    if (meogw != null & meogw !== '' & meogw != undefined) {
+                    if (meogw !== "null" & meogw !== '' && meogw !== undefined) {
                         if(value.max<meogw){
                             return parseFloat(meogw);
                         }
@@ -2048,7 +2114,6 @@ function initKztIMR(divId, xValue,yValue1,yValue2,tooltipArr,meugw,meogw) {
             }
         ]
     };
-    ;
     if (option && typeof option === "object") {
         kztChart.setOption(option, true);
     }

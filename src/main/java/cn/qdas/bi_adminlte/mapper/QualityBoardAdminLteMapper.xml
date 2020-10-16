@@ -36,14 +36,16 @@
         <result property="TETEILNR" column="TETEILNR"/>
         <result property="TEBEZEICH" column="TEBEZEICH"/>
         <result property="TEKURZBEZEICH" column="TEKURZBEZEICH"/>
-        <collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
-            <result property="WVWERT" column="WVWERT"/>
+        <collection property="meList" ofType="java.util.Map" javaType="java.util.List">
             <result property="MEMERKART" column="MEMERKART"/>
             <result property="MEUGW" column="MEUGW"/>
             <result property="MEOGW" column="MEOGW"/>
-            <result property="WVWERTNR" column="WVWERTNR"/>
-            <result property="WVTEIL" column="WVTEIL"/>
             <result property="WVMERKMAL" column="WVMERKMAL"/>
+            <collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
+                <result property="WVWERT" column="WVWERT"/>
+                <result property="WVWERTNR" column="WVWERTNR"/>
+                <result property="WVTEIL" column="WVTEIL"/>
+            </collection>
         </collection>
     </resultMap>
     <select id="getProcessDataMapper" parameterType="cn.qdas.bi_adminlte.bean.TeilBean" resultMap="processDataMap">
@@ -107,15 +109,18 @@
     <resultMap id="processDataMap" type="java.util.Map">
         <result property="TETEIL" column="TETEIL"/>
         <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
-        <collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
-            <result property="WVWERT" column="WVWERT"/>
+        <collection property="meList" ofType="java.util.Map" javaType="java.util.List">
             <result property="MEMERKART" column="MEMERKART"/>
             <result property="MEUGW" column="MEUGW"/>
             <result property="MEOGW" column="MEOGW"/>
-            <result property="WVWERTNR" column="WVWERTNR"/>
-            <result property="WVTEIL" column="WVTEIL"/>
             <result property="WVMERKMAL" column="WVMERKMAL"/>
+            <collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
+                <result property="WVWERT" column="WVWERT"/>
+                <result property="WVWERTNR" column="WVWERTNR"/>
+                <result property="WVTEIL" column="WVTEIL"/>
+            </collection>
         </collection>
+
     </resultMap>
     <select id="getMerkmalDataMapper" parameterType="cn.qdas.bi_adminlte.bean.TeilBean" resultMap="merkmalDataMap">
         SELECT w.WVTEIL,m.MEMERKMAL,m.MEMERKBEZ,w.WVWERT,m.MEMERKART,m.MEUGW,m.MEOGW,w.WVWERTNR
@@ -139,41 +144,23 @@
         <result property="WVTEIL" column="WVTEIL"/>
         <result property="MEMERKMAL" column="MEMERKMAL"/>
         <result property="MEMERKBEZ" column="MEMERKBEZ"/>
+        <result property="MEMERKART" column="MEMERKART"/>
+        <result property="MEUGW" column="MEUGW"/>
+        <result property="MEOGW" column="MEOGW"/>
         <collection property="wvList" ofType="java.util.Map" javaType="java.util.List">
             <result property="WVWERT" column="WVWERT"/>
-            <result property="MEMERKART" column="MEMERKART"/>
-            <result property="MEUGW" column="MEUGW"/>
-            <result property="MEOGW" column="MEOGW"/>
             <result property="WVWERTNR" column="WVWERTNR"/>
         </collection>
     </resultMap>
     <select id="getPlMissionManageChartDataMapper" parameterType="cn.qdas.bi_adminlte.bean.TeilBean"
             resultMap="mmPlChartResultMap">
-        SELECT t.TETEIL,t.TETEILNR,t.TEBEZEICH,t.TEKURZBEZEICH,t.TEPREINRBEZ,TEAUFTRAGSTR,TEMASCHINENR,TEABT,TEWERK,
+        SELECT t.TETEIL,t.TETEILNR,t.TEBEZEICH,t.TEKURZBEZEICH,/*t.TEPREINRBEZ,TEAUFTRAGSTR,TEMASCHINENR,TEABT,TEWERK,*/
         w.WVWERT,m.MEMERKART,m.MEMERKMAL,m.MEUGW,m.MEOGW,w.WVWERTNR,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT
         FROM WERTEVAR w
         LEFT JOIN TEIL t ON t.TETEIL= w.WVTEIL
         LEFT JOIN MERKMAL m ON m.MEMERKMAL=w.WVMERKMAL AND m.METEIL= w.WVTEIL
         WHERE 1=1
         <include refid="wvTimeSearch"/>
-        <!-- <if test="teilNum !='' and teilNum!=null and teilNum !='undefined' and teilNum !='null'">
-             and t.TETEILNR = #{teilNum}
-         </if>
-         <if test="teilNum =='' or teilNum==null or teilNum =='undefined' or teilNum =='null'">
-             and t.TETEILNR IS NULL
-         </if>
-         <if test="teilName !='' and teilName!=null and teilName !='undefined' and teilName !='null'">
-             and t.TEBEZEICH = #{teilName}
-         </if>
-         <if test="teilName =='' or teilName==null or teilName =='undefined' or teilName =='null'">
-             and t.TEBEZEICH IS NULL
-         </if>
-         <if test="teilK1003 !='' and teilK1003!=null and teilK1003 !='undefined' and teilK1003 !='null'">
-             and t.TEKURZBEZEICH = #{teilK1003}
-         </if>
-         <if test="teilK1003 =='' or teilK1003==null or teilK1003 =='teilK1003' or teilK1003 =='null'">
-             and t.TEKURZBEZEICH IS NULL
-         </if>-->
         ORDER BY w.WVDATZEIT
     </select>
     <resultMap id="mmPlChartResultMap" type="java.util.Map">
@@ -182,18 +169,18 @@
         <result property="TEKURZBEZEICH" column="TEKURZBEZEICH"/>
         <collection property="wvnrList" javaType="java.util.List" ofType="java.util.Map">
             <result property="TETEIL" column="TETEIL"/>
-            <result property="TEPREINRBEZ" column="TEPREINRBEZ"/>
+           <!-- <result property="TEPREINRBEZ" column="TEPREINRBEZ"/>
             <result property="TEAUFTRAGSTR" column="TEAUFTRAGSTR"/>
             <result property="TEMASCHINENR" column="TEMASCHINENR"/>
             <result property="TEABT" column="TEABT"/>
-            <result property="TEWERK" column="TEWERK"/>
+            <result property="TEWERK" column="TEWERK"/>-->
             <result property="WVWERTNR" column="WVWERTNR"/>
             <collection property="wvList" javaType="java.util.List" ofType="java.util.Map">
-                <result property="WVWERT" column="WVWERT"/>
                 <result property="MEMERKART" column="MEMERKART"/>
                 <result property="MEMERKMAL" column="MEMERKMAL"/>
                 <result property="MEUGW" column="MEUGW"/>
                 <result property="MEOGW" column="MEOGW"/>
+                <result property="WVWERT" column="WVWERT"/>
                 <result property="WVDATZEIT" column="WVDATZEIT"/>
             </collection>
         </collection>
@@ -446,6 +433,17 @@
         <include refid="wvTimeSearch"/>
         ORDER BY w.WVDATZEIT
     </select>
+    <select id="getQaMerkmalDataMapperByCount" parameterType="cn.qdas.bi_adminlte.bean.TeilBean" resultMap="qaMerkmalDataMap">
+        SELECT * FROM (
+        SELECT m.METEIL,m.MEMERKMAL,m.MEMERKBEZ,m.MENENNMAS,m.MEUGW,m.MEOGW,m.MEEINHEITTEXT,m.MEMERKART,
+        w.WVWERT,w.WVWERTNR,CONVERT(varchar(100),w.WVDATZEIT, 20) AS WVDATZEIT,w.WVTEIL,w.WVMERKMAL,
+        row_number() OVER (PARTITION BY WVMERKMAL ORDER BY WVDATZEIT DESC,WVWERTNR DESC) AS ROWINDEX
+        FROM MERKMAL m
+        LEFT JOIN WERTEVAR w ON m.METEIL=w.WVTEIL AND m.MEMERKMAL = w.WVMERKMAL
+        WHERE m.METEIL=#{teilId}
+        <include refid="wvTimeSearch"/>
+        ) r WHERE r.ROWINDEX &lt;= #{qbSerchWertCount}
+    </select>
     <resultMap id="qaMerkmalDataMap" type="java.util.Map">
         <result property="METEIL" column="METEIL"/>
         <result property="MEMERKMAL" column="MEMERKMAL"/>
@@ -482,8 +480,18 @@
         GROUP BY w.WVTEIL,w.WVMERKMAL
     </select>
     <select id="getKztChartDataMapper" parameterType="cn.qdas.bi_adminlte.bean.TeilBean" resultMap="kztChartMap">
+        select w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS
+        WVDATZEIT,m.MEMERKART,m.MEMERKBEZ,t.TEKURZBEZEICH,t.TEBEZEICH,t.TETEILNR,ISNULL(t.TEAUFTRAGSTR,'') AS TEAUFTRAGSTR,
+        m.MEUGW,m.MEOGW,m.MENENNMAS
+        FROM WERTEVAR w
+        LEFT JOIN TEIL t ON t.TETEIL = w.WVTEIL
+        LEFT JOIN MERKMAL m ON w.WVTEIL=m.METEIL AND w.WVMERKMAL=m.MEMERKMAL
+        where WVMERKMAL=#{merkmalId} and WVTEIL=#{teilId}
+        ORDER BY w.WVDATZEIT
+    </select>
+    <select id="getKztChartDataMapperByCount" parameterType="cn.qdas.bi_adminlte.bean.TeilBean" resultMap="kztChartMap">
        SELECT * FROM (
-        select TOP ${wvwertCount} w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS
+        select TOP ${qbSerchWertCount} w.WVTEIL,w.WVMERKMAL,w.WVWERTNR,w.WVWERT,CONVERT(varchar(100),w.WVDATZEIT, 20) AS
         WVDATZEIT,m.MEMERKART,m.MEMERKBEZ,t.TEKURZBEZEICH,t.TEBEZEICH,t.TETEILNR,ISNULL(t.TEAUFTRAGSTR,'') AS TEAUFTRAGSTR,
         m.MEUGW,m.MEOGW,m.MENENNMAS
         FROM WERTEVAR w

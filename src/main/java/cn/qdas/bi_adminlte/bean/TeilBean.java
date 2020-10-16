@@ -16,14 +16,57 @@ public class TeilBean extends BaseBean {
     private String qbSerchWertCount;
     private String ifQbSerchWertCount;
     private String ifSetupTolerance;
-    private String tolerance;
+    private String toleranceMultiple;
     private String ifSetupDecimal;
     private String decimal;
     private String wvwertCount;
-
+    private String controlLimitMultiple;
+    private String warningLimitMultiple;
     private String defaultSearchType;
     private String defaultSearchTime;
     private String defaultSearchCount;
+    private String dicideStandardType;
+    private String kztDicideStandardType;
+
+    public String getDicideStandardType() {
+        return dicideStandardType;
+    }
+
+    public void setDicideStandardType(String dicideStandardType) {
+        this.dicideStandardType = dicideStandardType;
+    }
+
+    public String getKztDicideStandardType() {
+        return kztDicideStandardType;
+    }
+
+    public void setKztDicideStandardType(String kztDicideStandardType) {
+        this.kztDicideStandardType = kztDicideStandardType;
+    }
+
+    public String getToleranceMultiple() {
+        return toleranceMultiple;
+    }
+
+    public void setToleranceMultiple(String toleranceMultiple) {
+        this.toleranceMultiple = toleranceMultiple;
+    }
+
+    public String getControlLimitMultiple() {
+        return controlLimitMultiple;
+    }
+
+    public void setControlLimitMultiple(String controlLimitMultiple) {
+        this.controlLimitMultiple = controlLimitMultiple;
+    }
+
+    public String getWarningLimitMultiple() {
+        return warningLimitMultiple;
+    }
+
+    public void setWarningLimitMultiple(String warningLimitMultiple) {
+        this.warningLimitMultiple = warningLimitMultiple;
+    }
 
     public String getDefaultSearchType() {
         return defaultSearchType;
@@ -65,13 +108,6 @@ public class TeilBean extends BaseBean {
         this.ifSetupTolerance = ifSetupTolerance;
     }
 
-    public String getTolerance() {
-        return tolerance;
-    }
-
-    public void setTolerance(String tolerance) {
-        this.tolerance = tolerance;
-    }
 
     public String getIfSetupDecimal() {
         return ifSetupDecimal;

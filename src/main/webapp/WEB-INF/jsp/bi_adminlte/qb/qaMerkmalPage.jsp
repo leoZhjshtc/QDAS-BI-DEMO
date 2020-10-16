@@ -8,7 +8,8 @@
 <head>
 </head>
 <body>
-<table class="table table-condensed">
+<input type="hidden" id="qaMerkmalTeilIdValue" value="${qaMerkmalTeilIdValue}">
+<table class="table table-condensed" id="medTable">
     <tr>
         <th style="width: 10px">#</th>
         <th>参数名</th>
@@ -25,7 +26,7 @@
         <th>CPK</th>
         <th>操作</th>
     </tr>
-    <c:forEach items="${qaMerkmalList}" var="list" varStatus="index">
+    <%--<c:forEach items="${qaMerkmalList}" var="list" varStatus="index">
         <tr onclick="merkmalRowClick('${list.METEIL}','${list.MEMERKMAL}')" class="qaMerkmalHandRow" data-toggle="modal" data-target="#dzt-modal-default">
             <td>${list.MEMERKMAL}</td>
             <td>${list.MEMERKBEZ}</td>
@@ -55,9 +56,9 @@
                 <c:if test="${list.MEMERKART!=\"1\"}">
                     <span class="sparkboxplotraw" sparkType="box" sparkRaw="false" sparkShowOutliers="false" sparkTarget="${list.MENENNMAS}" sparkHeight="30px" sparkWidth="100px"
                           >${list.boxPlotStr}</span>
-                    <%--<span class="sparkboxplot">
+                    &lt;%&ndash;<span class="sparkboxplot">
                         652.42676,652.77734,652.9035,653.0287,653.1145,652.8634,652.69037,652.49115,652.9948,653.162,653.09937,652.67285,652.495,652.78033,653.1086,653.13416,653.2775,652.3883,653.254,652.56805
-                    </span>--%>
+                    </span>&ndash;%&gt;
                 </c:if>
             </td>
             <td id="cpk${list.METEIL}${list.MEMERKMAL}"></td>
@@ -66,7 +67,7 @@
                 <button type="button" class="btn btn-info btn-xs" onclick="getCpkData(2,'${list.METEIL}','${list.MEMERKMAL}');">时间查询CPK</button>
             </td>
         </tr>
-    </c:forEach>
+    </c:forEach>--%>
 </table>
 <style>
     .qaMerkmalHandRow{
@@ -77,6 +78,154 @@
         src="<%=basePath%>resources/AdminLTE/bower_components/jquery-sparkline/dist/jquery.sparkline.js"></script>
 <script type="text/javascript">
     $(function () {
+        $.ajax({
+            type:'post',
+            url:'<%=basePath%>baqb/getQaMerkmalData',
+            data:{
+                startTime: startTime,
+                endTime: endTime,
+                teilId: $('#qaMerkmalTeilIdValue').val()
+            },
+            cache:false,
+            async:false,
+            success:function (data) {
+                for(var i=0;i<data.length;i++){
+                    var newTol=toleranceChange(data[i].MEUGW,data[i].MEOGW,$('#toleranceMultiple').val());
+                    var newWarn=toleranceChange(data[i].MEUGW,data[i].MEOGW,$('#warningLimitMultiple').val());
+                    //小数点。。。
+                    var fixCount=0;
+                    var fixstr;
+                    if(!isBlank(data[i].MEUGW)&&data[i].MEUGW.toString().indexOf('.')>-1){
+                        fixstr=data[i].MEUGW.toString().substring(data[i].MEUGW.toString().indexOf('.')+1)
+                    }else if(!isBlank(data[i].MEOGW)&&data[i].MEOGW.toString().indexOf('.')>-1){
+                        fixstr=data[i].MEOGW.toString().substring(data[i].MEOGW.toString().indexOf('.')+1)
+                    }
+                    if(!isBlank(fixstr)){
+                        fixCount=fixstr.length;
+                    }
+                    //小数点。。。
+                    data[i].newMEUGW=newTol.meugw!==undefined?newTol.meugw.toFixed(fixCount+2):"";
+                    data[i].newMEOGW=newTol.meogw!==undefined?newTol.meogw.toFixed(fixCount+2):"";
+                    data[i].downWarn=newWarn.meugw!==undefined?newWarn.meugw.toFixed(fixCount+2):"";
+                    data[i].upWarn=newWarn.meogw!==undefined?newWarn.meogw.toFixed(fixCount+2):"";
+                    var wvList = data[i].wvList;
+                    var nokcount=0;
+                    var totalcount=wvList.length;
+                    var barSb=new Array();
+                    var lineList=new Array();
+                    for(var j=0;j<wvList.length;j++){
+                        if(data[i].MEMERKART ==='1'){
+                            if (wvList[j].WVWERT.toString().indexOf('.') !== 0 & parseFloat(wvList[j].WVWERT.toString().substring(wvList[j].WVWERT.toString().indexOf(".") - 1)) > 0) {
+                                nokcount += 1;
+                                barSb.push(1);
+                            }else{
+                                barSb.push(0);
+                            }
+                        }else{
+                            lineList.push(wvList[j].WVWERT);
+                            var downlimit,uplimit;
+                            if(overallDicideStandardType==='1'){
+                                downlimit=data[i].newMEUGW;
+                                uplimit=data[i].newMEOGW;
+                            }else{
+                                downlimit=data[i].downWarn;
+                                uplimit=data[i].upWarn;
+                            }
+                            if (!isBlank(downlimit) & parseFloat(downlimit) > parseFloat(wvList[j].WVWERT)) {
+                                nokcount += 1;
+                                barSb.push(-1);
+                            }else if(!isBlank(uplimit)& parseFloat(uplimit) < parseFloat(wvList[j].WVWERT)){
+                                nokcount += 1;
+                                barSb.push(1);
+                            }else{
+                                barSb.push(0);
+                            }
+                        }
+                    }
+                    var okcount = totalcount - nokcount;
+                    var passrate = (parseFloat(okcount) * 100 / parseFloat(totalcount)).toFixed(2);
+                    var barStr;
+                    if(barSb.length>25){
+                        barStr=barSb.slice(barSb.length-25).join(',');
+                    }else{
+                        barStr=barSb.join(',')
+                    }
+                    var appendRow;
+                    var passrateStr;
+                    if(nokcount>0){
+                        passrateStr="<td><span class=\"badge bg-red\">"+passrate+"%</span></td>";
+                    }else{
+                        passrateStr="<td><span class=\"badge bg-green\">"+passrate+"%</span></td>";
+                    }
+                    if(data[i].MEMERKART =='1'){
+                        appendRow="<tr onclick=\"merkmalRowClick('"+data[i].METEIL+"','"+data[i].MEMERKMAL+"')\" class=\"qaMerkmalHandRow\" data-toggle=\"modal\" data-target=\"#dzt-modal-default\">"+
+                            "<td>"+data[i].MEMERKMAL+"</td>"+
+                            "<td>"+data[i].MEMERKBEZ+"</td>"+
+                            "<td></td>"+
+                            "<td></td>"+
+                            "<td></td>"+
+                            "<td></td>"+
+                            "<td></td>"+
+                            "<td></td>"+
+                            passrateStr+
+                            "<td><span class=\"sparktristate\">"+barStr+"</span><br></td>"+
+                            "<td>"+
+                            /*"<span class=\"normalline\" sparkNormalRangeMin=\""+data[i].MEUGW+"\" sparkNormalRangeMax=\""+data[i].MEOGW+"\" sparkHeight=\"30px\" sparkWidth=\"150px\""+
+                            "sparkSpotColor=\"false\" sparkSpotRadius=\"3\" sparkFillColor=\"false\" sparkValueSpots=\"{':2': 'red', '5:': 'red'}\" sparkMinSpotColor=\"false\" sparkMaxSpotColor=\"false\">"+
+                            lineStr+"</span>"+*/
+                            "</td>"+
+                            "<td>"+
+                            /*"<span class=\"sparkboxplotraw\" sparkType=\"box\" sparkRaw=\"false\" sparkShowOutliers=\"false\" sparkTarget=\""+data[i].MENENNMAS+"\" sparkHeight=\"30px\" sparkWidth=\"100px\">"+
+                            lineStr+"</span>"+*/
+                            "</td>"+
+                            "<td id=\"cpk"+data[i].METEIL+data[i].MEMERKMAL+"\"></td>"+
+                            "<td>"+
+                            "<button type=\"button\" class=\"btn btn-info btn-xs\" onclick=\"getCpkData(1,'"+data[i].METEIL+"','"+data[i].MEMERKMAL+"');\">近125条数据CPK</button>"+
+                            "<button type=\"button\" class=\"btn btn-info btn-xs\" onclick=\"getCpkData(2,'"+data[i].METEIL+"','"+data[i].MEMERKMAL+"');\">时间查询CPK</button>"+
+                            "</td>"+
+                            "</tr>";
+                    }else{
+                        var lineStr;
+                        if(lineList.length>25){
+                            lineStr=lineList.slice(lineList.length-25).join(',');
+                        }else{
+                            lineStr=lineList.join(',');
+                        }
+                        var MENENNMAS=data[i].MENENNMAS!==undefined?data[i].MENENNMAS:"";
+                        appendRow="<tr onclick=\"merkmalRowClick('"+data[i].METEIL+"','"+data[i].MEMERKMAL+"')\" class=\"qaMerkmalHandRow\" data-toggle=\"modal\" data-target=\"#dzt-modal-default\">"+
+                            "<td>"+data[i].MEMERKMAL+"</td>"+
+                            "<td>"+data[i].MEMERKBEZ+"</td>"+
+                            "<td>"+MENENNMAS+"</td>"+
+                            "<td>"+data[i].newMEUGW+"</td>"+
+                            "<td>"+data[i].newMEOGW+"</td>"+
+                            "<td>"+data[i].downWarn+"</td>"+
+                            "<td>"+data[i].upWarn+"</td>"+
+                            "<td>"+data[i].MEEINHEITTEXT+"</td>"+
+                            passrateStr+
+                            "<td><span class=\"sparktristate\">"+barStr+"</span><br></td>"+
+                            "<td>"+
+                            "<span class=\"normalline\" sparkNormalRangeMin=\""+data[i].newMEUGW+"\" sparkNormalRangeMax=\""+data[i].newMEOGW+"\" sparkHeight=\"30px\" sparkWidth=\"150px\""+
+                            "sparkSpotColor=\"false\" sparkSpotRadius=\"3\" sparkFillColor=\"false\" sparkValueSpots=\"{':2': 'red', '5:': 'red'}\" sparkMinSpotColor=\"false\" sparkMaxSpotColor=\"false\">"+
+                            lineStr+"</span>"+
+                            "</td>"+
+                            "<td>"+
+                            "<span class=\"sparkboxplotraw\" sparkType=\"box\" sparkRaw=\"false\" sparkShowOutliers=\"false\" sparkTarget=\""+data[i].MENENNMAS+"\" sparkHeight=\"30px\" sparkWidth=\"100px\">"+
+                            lineStr+"</span>"+
+                            "</td>"+
+                            "<td id=\"cpk"+data[i].METEIL+data[i].MEMERKMAL+"\"></td>"+
+                            "<td>"+
+                            "<button type=\"button\" class=\"btn btn-info btn-xs\" onclick=\"getCpkData(1,'"+data[i].METEIL+"','"+data[i].MEMERKMAL+"');\">近125条数据CPK</button>"+
+                            "<button type=\"button\" class=\"btn btn-info btn-xs\" onclick=\"getCpkData(2,'"+data[i].METEIL+"','"+data[i].MEMERKMAL+"');\">时间查询CPK</button>"+
+                            "</td>"+
+                            "</tr>";
+                    }
+                    $('#medTable').append(appendRow);
+                }
+            }
+        })
+
+
+
         $('.normalline').sparkline('html',
             {
                 enableTagOptions: true
